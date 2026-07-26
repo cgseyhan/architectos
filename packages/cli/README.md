@@ -258,16 +258,29 @@ Gemini CLI   ──┤
 OpenAI       ──┘
 ```
 
-### Quick MCP Setup (Cursor / Claude Desktop)
+### Quick MCP Setup (Cursor / Claude Desktop / Windsurf)
 
 Add ArchitectOS to your `claude_desktop_config.json` or Cursor MCP settings:
 
+#### Option 1: Zero Installation (`npx`)
 ```json
 {
   "mcpServers": {
     "architectos": {
       "command": "npx",
       "args": ["-y", "architectos", "mcp"]
+    }
+  }
+}
+```
+
+#### Option 2: Global CLI Installation (`npm i -g architectos`)
+```json
+{
+  "mcpServers": {
+    "architectos": {
+      "command": "architectos",
+      "args": ["mcp"]
     }
   }
 }
