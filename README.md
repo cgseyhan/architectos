@@ -95,11 +95,11 @@ Add ArchitectOS to your `claude_desktop_config.json` or Cursor MCP settings:
 
 ---
 
-## 🛡️ Senior Architect Governance & Auto-Fix Engine
+## 🛡️ Senior Architect Governance & Actionable Refactoring Engine
 
 ArchitectOS acts as your **Senior Principal Architect Mentor**.
 
-When you run `architectos review` or `architectos check`, ArchitectOS provides a 4-part architectural analysis:
+When you run `architectos review` or `architectos check`, ArchitectOS evaluates universal clean architecture principles and provides an **Actionable Recommended Tasks Checklist**:
 
 ```
 $ architectos review
@@ -107,38 +107,50 @@ $ architectos review
 🛡️ [ArchitectOS Governance] Reviewing Architecture & Enforcing Constitutional Rules...
 
 ================================================================================
-📊 ARCHITECTURAL CONSTITUTION REVIEW MATRIX
+📊 ARCHITECTURAL SYSTEM HEALTH & GOVERNANCE MATRIX
 ================================================================================
 Overall Health Score: 38/100
-Architecture Score: 0/100 | Security Score: 40/100 | Maintainability: 99/100
+Architecture Score: 0/100 | Security: 40/100 | Maintainability: 99/100
+AI Readiness Score:  41/100 | Technical Debt: 25/100
 ================================================================================
 
-❌ [FAIL] 1 Constitutional Violation(s) Detected:
+📋 RECOMMENDED TASKS (Actionable Refactoring Checklist)
+────────────────────────────────────────────────────────────────────────────────
+[HIGH PRIORITY]
+  □ Remove 4 Presentation ──► Infrastructure direct import(s)
+  □ Break 3 Circular Dependency Cycle(s)
+  □ Record Repository Memory rules (architectos remember)
+  □ Generate missing Architecture Decision Records (architectos adr generate)
 
-# Constitutional Violation Report #1
-Rule:        ui-infrastructure-boundary
-Severity:    🔴 High | Confidence: 100%
+Estimated Health Impact: 38/100 ──► 98/100 (▲ +60 pts)
 
-Files Affected:
-  • apps/landing/app/dashboard/page.tsx
-  • apps/landing/app/dashboard/repository/document-repository.ts
-
-## 1. Why this violates the architecture
-Presentation Layer (UI) is directly accessing Infrastructure Layer (Database).
-
-## 2. Expected Architecture
-Expected Flow:  UI Component  ──►  Application Service  ──►  Infrastructure
-Current Flow:   UI Component  ───────(BYPASSED)───────►  Infrastructure  ❌
-
-## 4. Auto Fix & Architecture Impact
-Architecture Health Impact:
-  Before Fix:  38 / 100
-  After Fix:   98 / 100  (▲ +60 pts)
-
-Run: architectos fix ui-infrastructure-boundary
+Run 'architectos fix-plan' to generate LLM prompt roadmaps for Cursor / Claude / Codex!
 ```
 
-### Automated Refactoring (`architectos fix`)
+### 🤖 LLM Prompt Implementation Roadmap (`architectos fix-plan`)
+
+Turn actionable recommendations into step-by-step LLM implementation prompts formatted for **Cursor, Claude Code, and Codex**:
+
+```bash
+$ architectos fix-plan
+
+⚡ [ArchitectOS AI Refactoring Plan] Generating LLM Implementation Roadmaps...
+
+✓ Generated AI Refactoring Implementation Roadmap
+  File Saved: .architectos/reports/FIX-PLAN.md
+
+================================================================================
+🤖 LLM PROMPT ROADMAP FOR AI AGENTS (Cursor / Claude Code / Codex)
+================================================================================
+
+Prompt #1 [Refactor Presentation Layer]:
+  "Create an Application Service abstraction layer and update Presentation Layer imports."
+
+Prompt #2 [Decouple Circular Imports]:
+  "Extract shared domain interfaces/types into a dedicated domain/types module."
+```
+
+### ⚡ Automated Refactoring (`architectos fix`)
 
 Run automated architecture boundary refactoring:
 ```bash
