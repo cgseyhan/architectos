@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.22-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.23-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -244,7 +244,7 @@ Overall Score     91/100 ✅ [Healthy]
  ├── Security     85/100 -> Reason: 1 SAST Flaw(s)
  ├── Code Quality 97/100 -> Reason: Evaluated across AST complexity & file sizes
  ├── AI Readiness 100/100 -> Reason: 100% Symbol coverage & active memory rules
- ├── Testability  50/100 -> Reason: Evaluated against valid assertion test files
+ ├── Testability  93/100 -> Reason: Evaluated against valid assertion test files
  └── Maintainable 96/100 -> Reason: Low technical debt
 
 🤖 AI System: Refactor Safety & AI Readiness
