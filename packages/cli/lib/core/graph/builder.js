@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { NodeType, EdgeType } = require('../types');
+const { scanCodeForVulnerabilities } = require('../security/sastScanner');
 
 /**
  * ArchitectOS Multi-Source Graph Builder
@@ -43,7 +44,8 @@ class GraphBuilder {
         domain: domainTag,
         size: content.length,
         lines: content.split('\n').length,
-        symbols: this.extractSymbols(content, relFile)
+        symbols: this.extractSymbols(content, relFile),
+        vulnerabilities: scanCodeForVulnerabilities(content, relFile)
       };
 
       this.nodes.set(nodeId, node);
@@ -94,11 +96,20 @@ class GraphBuilder {
 
   collectFiles(dir, fileList = [], depth = 0) {
     if (depth > 8) return fileList;
+    const excludes = (this.config && this.config.exclude) || [];
     try {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
 
       for (const entry of entries) {
         const lowerName = entry.name.toLowerCase();
+        const fullPath = path.join(dir, entry.name);
+        const relPath = path.relative(this.targetDir, fullPath).replace(/\\/g, '/');
+
+        const isExcluded = excludes.some(pattern => {
+          const cleanPattern = pattern.replace(/\*/g, '').replace(/^\/+|\/+$/g, '');
+          return cleanPattern && relPath.includes(cleanPattern);
+        });
+
         if (
           lowerName.startsWith('.') || 
           lowerName === 'node_modules' || 
@@ -110,12 +121,12 @@ class GraphBuilder {
           lowerName === 'venv' ||
           lowerName === '.venv' ||
           lowerName === 'env' ||
-          lowerName === 'architectos-out'
+          lowerName === 'architectos-out' ||
+          isExcluded
         ) {
           continue;
         }
 
-        const fullPath = path.join(dir, entry.name);
         if (entry.isDirectory()) {
           this.collectFiles(fullPath, fileList, depth + 1);
         } else if (/\.(js|jsx|ts|tsx|py|json)$/.test(entry.name)) {
@@ -142,24 +153,33 @@ class GraphBuilder {
   extractSymbols(content, filePath) {
     const symbols = [];
     try {
-      const classMatches = content.matchAll(/(?:export\s+)?class\s+([A-Za-z0-9_]+)/g);
-      for (const match of classMatches) {
-        symbols.push({ name: match[1], kind: 'class' });
-      }
-      const fnMatches = content.matchAll(/(?:export\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)/g);
-      for (const match of fnMatches) {
-        symbols.push({ name: match[1], kind: 'function' });
-      }
-      const interfaceMatches = content.matchAll(/(?:export\s+)?interface\s+([A-Za-z0-9_]+)/g);
-      for (const match of interfaceMatches) {
-        symbols.push({ name: match[1], kind: 'interface' });
-      }
-      const varMatches = content.matchAll(/(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_]+)/g);
-      for (const match of varMatches) {
-        symbols.push({ name: match[1], kind: 'variable' });
-      }
-      if (/module\.exports/.test(content)) {
-        symbols.push({ name: 'exports', kind: 'export' });
+      const isPython = filePath.endsWith('.py');
+      if (isPython) {
+        const pyClasses = content.matchAll(/^class\s+([A-Za-z0-9_]+)/gm);
+        for (const match of pyClasses) symbols.push({ name: match[1], kind: 'class' });
+
+        const pyFunctions = content.matchAll(/^(?:async\s+)?def\s+([A-Za-z0-9_]+)/gm);
+        for (const match of pyFunctions) symbols.push({ name: match[1], kind: 'function' });
+      } else {
+        const classMatches = content.matchAll(/(?:export\s+)?(?:default\s+)?class\s+([A-Za-z0-9_]+)/g);
+        for (const match of classMatches) symbols.push({ name: match[1], kind: 'class' });
+
+        const fnMatches = content.matchAll(/(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)?/g);
+        for (const match of fnMatches) {
+          if (match[1]) symbols.push({ name: match[1], kind: 'function' });
+        }
+
+        const interfaceMatches = content.matchAll(/(?:export\s+)?interface\s+([A-Za-z0-9_]+)/g);
+        for (const match of interfaceMatches) symbols.push({ name: match[1], kind: 'interface' });
+
+        const typeMatches = content.matchAll(/(?:export\s+)?type\s+([A-Za-z0-9_]+)/g);
+        for (const match of typeMatches) symbols.push({ name: match[1], kind: 'type' });
+
+        const varMatches = content.matchAll(/(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_]+)/g);
+        for (const match of varMatches) symbols.push({ name: match[1], kind: 'variable' });
+
+        if (/export\s+default/.test(content)) symbols.push({ name: 'default', kind: 'export' });
+        if (/module\.exports/.test(content)) symbols.push({ name: 'exports', kind: 'export' });
       }
     } catch (e) {}
     return symbols;

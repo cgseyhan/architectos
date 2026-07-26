@@ -1,5 +1,7 @@
 /**
- * ArchitectOS Layer 11: Engineering Health Scorer
+ * ArchitectOS Layer 11: High-Precision Engineering Health Scorer
+ * Multi-Metric Reality Engine evaluating Architecture, Security (SAST),
+ * Maintainability, Testability, AI Readiness, and Technical Debt.
  */
 const fs = require('fs');
 const path = require('path');
@@ -15,24 +17,57 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
   const sourceCodeFiles = nodes.filter(n => /\.(js|jsx|ts|tsx|py)$/.test(n.name));
   const totalCodeFiles = sourceCodeFiles.length || 1;
 
-  // 1. Architecture Score
-  let archDeductions = cycleCount * 15 + violationCount * 20;
+  // Degree Centrality (Coupling & God Components)
+  const degreeMap = new Map();
+  edges.forEach(e => {
+    degreeMap.set(e.source, (degreeMap.get(e.source) || 0) + 1);
+    degreeMap.set(e.target, (degreeMap.get(e.target) || 0) + 1);
+  });
+  const godComponents = Array.from(degreeMap.values()).filter(deg => deg > 15).length;
+
+  // 1. Architecture Score (Cycles + Boundaries + God Components)
+  const archDeductions = cycleCount * 15 + violationCount * 20 + godComponents * 5;
   const architectureScore = Math.max(0, Math.min(100, 100 - archDeductions));
 
-  // 2. Security Score
-  const hardcodedSecrets = nodes.filter(n => n.name.toLowerCase().includes('secret') || n.name.toLowerCase().includes('key')).length;
-  const securityScore = Math.max(0, Math.min(100, 100 - hardcodedSecrets * 10));
+  // 2. Security Score (Unencrypted Secrets + High Precision SAST Vulnerabilities)
+  const hardcodedSecrets = nodes.filter(n => {
+    const name = n.name.toLowerCase();
+    // 1. Test, Spec, Mock, Example ve Doküman dosyalarını muaf tut (Yanlış Alarmı Önler)
+    if (/(test|spec|example|demo|mock|\.md|\.d\.ts)$/.test(name)) return false;
+    // 2. Gerçek Tehlikeli Gizli Dosyalar (.env*, *.pem, *.key, id_rsa, credentials)
+    const isSecretFile = /(\.env|\.pem|\.key|id_rsa|credentials|service_account)/.test(name);
+    // 3. Kod Dosyalarındaki Tehlikeli İsimler (db_password, jwt_secret, aws_secret)
+    const isSecretName = /(db_password|jwt_secret|api_key_secret|aws_secret|master_key)/.test(name);
+    return isSecretFile || isSecretName;
+  }).length;
 
-  // 3. Maintainability Score
+  const totalSastVulnerabilities = nodes.reduce((sum, n) => sum + (n.vulnerabilities ? n.vulnerabilities.length : 0), 0);
+  const criticalSastCount = nodes.reduce((sum, n) => {
+    if (!n.vulnerabilities) return sum;
+    return sum + n.vulnerabilities.filter(v => v.severity === 'CRITICAL' || v.severity === 'HIGH').length;
+  }, 0);
+
+  const securityDeductions = hardcodedSecrets * 10 + criticalSastCount * 15;
+  const securityScore = Math.max(0, Math.min(100, 100 - securityDeductions));
+
+  // 3. Maintainability Score (Complexity + Large Files + Deep Nesting)
   const largeFiles = nodes.filter(n => n.lines > 300).length;
-  const maintainabilityScore = Math.max(0, Math.min(100, 100 - Math.round((largeFiles / totalFiles) * 40)));
+  const giantFiles = nodes.filter(n => n.lines > 600).length;
+  const deepFiles = nodes.filter(n => (n.path.match(/\//g) || []).length > 5).length;
+  
+  const maintainabilityDeductions = Math.round(
+    (largeFiles / totalFiles) * 25 +
+    (giantFiles / totalFiles) * 35 +
+    (deepFiles / totalFiles) * 20
+  );
+  const maintainabilityScore = Math.max(0, Math.min(100, 100 - maintainabilityDeductions));
 
-  // 4. Testability Score
-  const testFiles = nodes.filter(n => n.path.includes('test') || n.path.includes('spec')).length;
-  const testRatio = testFiles / totalFiles;
-  const testabilityScore = Math.max(20, Math.min(100, Math.round(testRatio * 300) + 40));
+  // 4. Testability Score (Real Test Ratio + Component Isolation)
+  const testFiles = nodes.filter(n => /(test|spec|__tests__|test_)/i.test(n.path)).length;
+  const testRatio = testFiles / Math.max(1, sourceCodeFiles.length);
+  const testabilityScore = Math.max(30, Math.min(100, Math.round(testRatio * 250) + 50));
 
-  // 5. AI Readiness Score (Multi-Dimensional: Source Code Symbol Coverage + Memory + ADRs + Structural Clarity)
+  // 5. AI Readiness Score (Multi-Dimensional: Symbol Coverage + Memory Rules + ADR Coverage)
   const codeFilesWithSymbols = sourceCodeFiles.filter(n => (n.symbols && n.symbols.length > 0) || /\.(json|config\.js)$/.test(n.name)).length;
   const symbolRatio = codeFilesWithSymbols / totalCodeFiles;
 
@@ -62,8 +97,9 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
 
   const aiReadinessScore = Math.max(0, Math.min(100, Math.round(symbolRatio * 60 + memoryBonus + adrBonus)));
 
-  // 6. Technical Debt Score
-  const techDebtScore = Math.max(0, Math.min(100, 100 - (cycleCount * 10 + largeFiles * 5)));
+  // 6. Technical Debt Score (Combined Debt Accumulation)
+  const techDebtDeductions = cycleCount * 10 + violationCount * 15 + criticalSastCount * 10 + largeFiles * 3 + godComponents * 5;
+  const techDebtScore = Math.max(0, Math.min(100, 100 - techDebtDeductions));
 
   // 7. Overall Aggregate Health Score
   const overallScore = Math.round(
@@ -86,9 +122,12 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
     },
     summary: {
       totalFiles,
+      totalCodeFiles,
       totalDependencies: edges.length,
       circularDependencyCycles: cycleCount,
       constitutionViolations: violationCount,
+      sastVulnerabilities: totalSastVulnerabilities,
+      godComponentsCount: godComponents,
       status: overallScore >= 80 ? 'PASSED' : 'ACTION_REQUIRED'
     }
   };
