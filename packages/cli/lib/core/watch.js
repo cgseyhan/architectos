@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { GraphBuilder } = require('./graph/builder');
+const GraphBuilder = require('./graph/builder');
 const { loadConfig } = require('./config');
 const { calculateHealth } = require('./graph/health');
 

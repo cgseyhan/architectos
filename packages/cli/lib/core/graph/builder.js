@@ -310,3 +310,4 @@ class GraphBuilder {
 }
 
 module.exports = GraphBuilder;
+module.exports.GraphBuilder = GraphBuilder;
