@@ -27,7 +27,7 @@ npx architectos status
 ```
 
 ```
-📊 ArchitectOS Repository Report
+📊 ArchitectOS Repository Status
 
 Project & Environment
 ────────────────────────────────────────────────────────────────
@@ -37,22 +37,37 @@ Files             4,821
 Services          37
 Modules           91
 
-Architecture & Governance
+🔍 Analysis System: Quality Model & Score Reasons
 ────────────────────────────────────────────────────────────────
-Health Score      96/100 ✅ [Healthy]
-Cycles            0 ✓
-Layer Violations  0 ✓
-Technical Debt    98/100
+Overall Score     92/100 ✅ [Healthy]
+ ├── Architecture 96/100 -> Reason: Clean domain boundaries & DAG graph integrity
+ ├── Security     94/100 -> Reason: Zero SAST vulnerabilities & secrets detected
+ ├── Code Quality 90/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 97/100 -> Reason: 100% Symbol coverage & active memory rules
+ ├── Testability  88/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 89/100 -> Reason: Low technical debt
 
-AI Readiness & MCP
-────────────────────────────────────────────────────────────────
-AI Context Score  97/100 ✓ [Ready]
-Memory Rules      Active
-MCP Gateway       Enabled (npx architectos mcp)
+Repository Insights
+ ├── Largest Module        AuthenticationService.ts (480 lines)
+ ├── Most Connected        WorkspaceService.ts (24 dependencies)
+ ├── Circular Dependencies 0
+ └── Dead Code             3 file(s)
 
-Status & Insights
+🤖 AI System: Refactor Safety & AI Readiness
 ────────────────────────────────────────────────────────────────
-✓ Repository domain boundaries healthy & ready for AI agents.
+Refactor Safety   92% (Safe for AI-assisted refactoring)
+AI Context        Token-Budgeted Deterministic AST Map
+Repository Memory Active (Rules Enabled)
+
+🛡️ Governance System: Estimated Debt & Top Recommendations
+────────────────────────────────────────────────────────────────
+Estimated Technical Debt: 45 mins
+Based on:
+  • 3 Dead Code File(s) (10 mins each)
+
+Top Recommendations
+────────────────────────────────────────────────────────────────
+  ✓ Repository domain boundaries healthy & ready for AI agents.
 ```
 
 ---
@@ -220,15 +235,21 @@ We use ArchitectOS to analyze, govern, and maintain the software architecture of
 ```
 $ architectos status
 
-Repository       architectos
-Health           91/100
-Architecture     Healthy
-Cycles           0
-Violations       0
-Services         3 (@architectos/core, cli, mcp)
-Endpoints        12
-Database Tables  6
-AI Readiness     100/100
+📊 ArchitectOS Repository Status
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     91/100 ✅ [Healthy]
+ ├── Architecture 98/100 -> Reason: Clean domain boundaries & DAG graph integrity
+ ├── Security     85/100 -> Reason: 1 SAST Flaw(s)
+ ├── Code Quality 97/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 100/100 -> Reason: 100% Symbol coverage & active memory rules
+ ├── Testability  50/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 96/100 -> Reason: Low technical debt
+
+🤖 AI System: Refactor Safety & AI Readiness
+────────────────────────────────────────────────────────────────
+Refactor Safety   90% (Safe for AI-assisted refactoring)
 ```
 
 ---
