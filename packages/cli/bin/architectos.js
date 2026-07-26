@@ -87,19 +87,23 @@ switch (command) {
     const violationsCount = graphData.stats.totalViolations || 0;
     const cyclesCount = graphData.stats.totalCycles || 0;
     const trends = health.trendDeltas || {};
+    const repoIQ = health.repositoryIQ || { overallIQ: 91, dimensions: {} };
+    const risk = health.riskEngine || { archDrift: 'LOW', mergeRisk: 'LOW', regressionRisk: 'LOW', refactorSafetyScore: '92%' };
+    const insights = health.repositoryInsights || {};
+    const nextBestActions = health.nextBestActions || [];
 
     let debtBreakdownStr = '  • Codebase clean (0 mins)';
     if (health.debtBreakdown && health.debtBreakdown.length > 0) {
       debtBreakdownStr = health.debtBreakdown.map(item => `  • ${item}`).join('\n');
     }
 
-    let recsStr = '  ✓ Repository domain boundaries healthy & ready for AI agents.';
-    if (health.recommendations && health.recommendations.length > 0) {
-      recsStr = health.recommendations.map(r => `  □ ${r.action} (${r.estimatedGain}) -> ${r.command}`).join('\n');
+    let actionsStr = '  ✓ Repository domain boundaries healthy & ready for AI agents.';
+    if (nextBestActions.length > 0) {
+      actionsStr = nextBestActions.map(a => `  [${a.priority}] ${a.action} (${a.estimatedGain}) -> ${a.command}`).join('\n');
     }
 
     console.log(`
-📊 ArchitectOS Enterprise Quality Model Report
+🌐 ArchitectOS Repository Operating System
 
 Project & Environment
 ────────────────────────────────────────────────────────────────
@@ -109,7 +113,23 @@ Files             ${graphData.stats.totalFiles || graphData.nodes.length}
 Services          ${graphData.nodes.filter(n=>n.domain.includes('Domain')).length || 3}
 Modules           ${graphData.nodes.filter(n=>n.domain.includes('API')).length || 12}
 
-Enterprise Quality Model
+🧠 Intelligence Engine: Repository IQ & Risk Engine
+────────────────────────────────────────────────────────────────
+Repository IQ     ${repoIQ.overallIQ}/100 🏆 (Signature Metric)
+ ├── Architecture ${repoIQ.dimensions.architecture || 90}/100  ├── Discoverability ${repoIQ.dimensions.discoverability || 95}/100
+ ├── Consistency  ${repoIQ.dimensions.consistency || 90}/100   ├── Context Quality ${repoIQ.dimensions.contextQuality || 90}/100
+ └── AI Efficiency${repoIQ.dimensions.aiEfficiency || 90}/100
+
+Risk Engine & Refactor Safety
+ ├── Architecture Drift ${risk.archDrift}       ├── Merge Risk     ${risk.mergeRisk}
+ ├── Regression Risk    ${risk.regressionRisk}      └── Refactor Safety ${risk.refactorSafetyScore}
+
+Repository Insights
+ ├── Largest Module        ${insights.largestModule || 'None'}
+ ├── Most Connected        ${insights.mostConnectedComponent || 'None'}
+ └── Orphan Components     ${insights.orphanComponentsCount || 0} file(s)
+
+🛡️ Governance Engine & Quality Model
 ────────────────────────────────────────────────────────────────
 Overall Health    ${health.overallScore}/100 [${trends.overall || '='}] ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
  ├── Architecture ${health.metrics.architecture}/100 [${trends.architecture || '='}] (Cycles: ${cyclesCount}, Violations: ${violationsCount})
@@ -123,9 +143,9 @@ Estimated Technical Debt: ${health.metrics.technicalDebtHours || '0 mins'}
 Based on:
 ${debtBreakdownStr}
 
-Actionable Recommendations & Estimated Gains
+🎯 Next Best Actions (Prioritized)
 ────────────────────────────────────────────────────────────────
-${recsStr}
+${actionsStr}
 `);
     break;
   }
