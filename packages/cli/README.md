@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.28-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.29-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -351,12 +351,15 @@ architectos insights           # View coupling density, largest modules, and dri
 architectos explain auth       # Retrieve token-budgeted AI architecture explanation
 architectos eval "oauth flow"  # Measure AI context completeness & hallucination risk
 architectos remember "<rule>"  # Record persistent architectural memory for AI agents
+architectos memory-sync        # Auto-synchronize repository memory & ADR rules
 architectos plan "Hexagonal"   # Generate step-by-step AI refactoring roadmap
 architectos mcp                # Start JSON-RPC MCP server for Claude, Cursor, Gemini
 ```
 
 ### 4. Governance & Architecture Guard
 ```bash
+architectos guard              # Fast (<200ms) Vibe-Coding pre-commit shield (use --install-hook)
+architectos drift              # Calculate architecture drift velocity & AI refactor safety %
 architectos review             # Run System Health review with Actionable Recommended Tasks Checklist
 architectos fix-plan           # Generate LLM implementation prompt roadmaps for Cursor / Claude / Codex
 architectos fix <rule>         # Run automated architectural refactoring engine
