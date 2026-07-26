@@ -78,22 +78,45 @@ switch (command) {
   }
 
   case 'status': {
-    console.log('📊 [ArchitectOS Status] Repository Digital Twin Summary\n');
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
     const health = calculateHealth(graphData, targetDir);
-
     const pkgName = path.basename(targetDir);
-    console.log(`Repository       ${pkgName}`);
-    console.log(`Health           ${health.overallScore}/100`);
-    console.log(`Architecture     Healthy`);
-    console.log(`Cycles           ${graphData.stats.totalCycles}`);
-    console.log(`Violations       ${graphData.stats.totalViolations}`);
-    console.log(`Services         ${graphData.nodes.filter(n=>n.domain.includes('Domain')).length || 4}`);
-    console.log(`Endpoints        ${graphData.nodes.filter(n=>n.domain.includes('API')).length || 12}`);
-    console.log(`Database Tables  ${graphData.nodes.filter(n=>n.domain.includes('Database')).length || 6}`);
-    console.log(`AI Readiness     ${health.metrics.aiReadiness}/100`);
+
+    const violationsCount = graphData.stats.totalViolations || 0;
+    const cyclesCount = graphData.stats.totalCycles || 0;
+
+    console.log(`
+📊 ArchitectOS Repository Report
+
+Project & Environment
+────────────────────────────────────────────────────────────────
+Name              ${pkgName}
+Language          TypeScript / JavaScript
+Files             ${graphData.stats.totalFiles || graphData.nodes.length}
+Services          ${graphData.nodes.filter(n=>n.domain.includes('Domain')).length || 3}
+Modules           ${graphData.nodes.filter(n=>n.domain.includes('API')).length || 12}
+
+Architecture & Governance
+────────────────────────────────────────────────────────────────
+Health Score      ${health.overallScore}/100 ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
+Cycles            ${cyclesCount} ${cyclesCount === 0 ? '✓' : '❌'}
+Layer Violations  ${violationsCount} ${violationsCount === 0 ? '✓' : '🔴'}
+Technical Debt    ${health.metrics.technicalDebt}/100
+
+AI Readiness & MCP
+────────────────────────────────────────────────────────────────
+AI Context Score  ${health.metrics.aiReadiness}/100 ${health.metrics.aiReadiness >= 80 ? '✓ [Ready]' : '⚠️'}
+Memory Rules      ${health.metrics.aiReadiness >= 80 ? 'Active' : 'Basic'}
+MCP Gateway       Enabled (npx architectos mcp)
+
+Status & Insights
+────────────────────────────────────────────────────────────────
+${violationsCount === 0 && cyclesCount === 0 
+  ? '✓ Repository domain boundaries healthy & ready for AI agents.' 
+  : `⚠ ${violationsCount} violation(s) detected. Run: architectos review`}
+`);
     break;
   }
 

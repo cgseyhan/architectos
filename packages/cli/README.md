@@ -2,10 +2,10 @@
 
 # ArchitectOS
 
-### ArchitectOS is to software architecture what Git is to source code.
+### ESLint for Architecture. MCP for AI. Digital Twin for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.10-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.11-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -16,31 +16,90 @@
 
 ---
 
-## 🐕 Self-Hosted Architecture
+## ⚡ 30-Second Quickstart
 
-> **"ArchitectOS is built, governed, and quality-assured by ArchitectOS."**
+```bash
+# Run instantly anywhere (Zero Installation)
+npx architectos init
 
-We use ArchitectOS to analyze, govern, and maintain the software architecture of ArchitectOS itself:
+# View living repository health & AI readiness dashboard
+npx architectos status
+```
 
 ```
-$ architectos status
+📊 ArchitectOS Repository Report
 
-Repository       architectos
-Health           91/100
-Architecture     Healthy
-Cycles           0
-Violations       0
-Services         3 (@architectos/core, cli, mcp)
-Endpoints        12
-Database Tables  6
-AI Readiness     100/100
+Project & Environment
+────────────────────────────────────────────────────────────────
+Name              Preceda
+Language          TypeScript / JavaScript
+Files             4,821
+Services          37
+Modules           91
+
+Architecture & Governance
+────────────────────────────────────────────────────────────────
+Health Score      96/100 ✅ [Healthy]
+Cycles            0 ✓
+Layer Violations  0 ✓
+Technical Debt    98/100
+
+AI Readiness & MCP
+────────────────────────────────────────────────────────────────
+AI Context Score  97/100 ✓ [Ready]
+Memory Rules      Active
+MCP Gateway       Enabled (npx architectos mcp)
+
+Status & Insights
+────────────────────────────────────────────────────────────────
+✓ Repository domain boundaries healthy & ready for AI agents.
 ```
 
 ---
 
-## 🎬 Terminal Showcase: Senior Architect Review & Auto-Fix
+## 📥 Installation
 
-Watch ArchitectOS detect architectural boundary violations and refactor technical debt in seconds:
+```bash
+# Global CLI Installation
+npm i -g architectos
+
+# Or install as project developer dependency
+npm i -D architectos
+```
+
+---
+
+## 🤖 Unified AI Agent MCP Gateway
+
+ArchitectOS acts as the shared **architectural brain** for all AI coding agents:
+
+```
+Claude Code ──┐
+Cursor       ──┼──► ArchitectOS MCP ──► Living Repository Digital Twin
+Gemini CLI   ──┤
+OpenAI       ──┘
+```
+
+Add ArchitectOS to your `claude_desktop_config.json` or Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "architectos": {
+      "command": "npx",
+      "args": ["-y", "architectos", "mcp"]
+    }
+  }
+}
+```
+
+---
+
+## 🛡️ Senior Architect Governance & Auto-Fix Engine
+
+ArchitectOS acts as your **Senior Principal Architect Mentor**.
+
+When you run `architectos review` or `architectos check`, ArchitectOS provides a 4-part architectural analysis:
 
 ```
 $ architectos review
@@ -79,140 +138,6 @@ Architecture Health Impact:
 Run: architectos fix ui-infrastructure-boundary
 ```
 
-```
-$ architectos fix ui-infrastructure-boundary
-
-⚡ [ArchitectOS Auto-Fix] Running automated architectural refactoring engine...
-Targeting Rule: ui-infrastructure-boundary
-
-✓ Analyzing component AST boundaries...
-✓ Creating Application Service abstraction layer...
-✓ Decoupling Presentation Layer imports...
-✓ Re-indexing Architecture Knowledge Graph...
-
-================================================================================
-🎉 ARCHITECTURAL AUTO-FIX SUMMARY
-================================================================================
-Rule Fixed:          ui-infrastructure-boundary
-Architecture Health: 38/100 ──► 98/100 (▲ +60 pts)
-Technical Debt:      -1 Constitutional Violation Fixed
-Status:              ✅ [PASSED] Repository digital twin updated.
-================================================================================
-```
-
----
-
-## 📥 Installation
-
-Install globally or as a project dependency:
-
-```bash
-# Global CLI Installation
-npm i -g architectos
-
-# Or install in your project
-npm i -D architectos
-
-# Or run instantly via npx (Zero Installation)
-npx architectos init
-```
-
----
-
-## 🌟 Category Definition
-
-| Tool | Domain / Category |
-| :--- | :--- |
-| **Git** | Source Control Management |
-| **Docker** | Containerization Platform |
-| **Terraform** | Infrastructure-as-Code |
-| **Prisma** | Database ORM |
-| **ArchitectOS** | **Repository Intelligence & Architecture Operating System** |
-
----
-
-## 🎯 Common Use-Cases
-
-* **✓ Understand a 2M LOC monorepo in minutes**
-* **✓ Prepare perfect, token-budgeted AI context for Claude Code & Cursor**
-* **✓ Detect architectural violations and circular imports before merge**
-* **✓ Trace request execution flows across microservices and controllers**
-* **✓ Measure engineering health and AI readiness continuously**
-* **✓ Build a searchable multi-dimensional repository knowledge graph**
-* **✓ Power your own autonomous AI coding agents via MCP**
-
----
-
-## 🛡️ Senior Architect Governance & Auto-Fix Engine
-
-ArchitectOS is not just a linter—it acts as your **Senior Principal Architect Mentor**.
-
-When you run `architectos review` or `architectos check`, ArchitectOS provides a 4-part architectural analysis:
-
-```
-🛡️ [ArchitectOS Governance] Reviewing Architecture & Enforcing Constitutional Rules...
-
-================================================================================
-📊 ARCHITECTURAL CONSTITUTION REVIEW MATRIX
-================================================================================
-Overall Health Score: 38/100
-Architecture Score: 0/100 | Security Score: 40/100 | Maintainability: 99/100
-================================================================================
-
-❌ [FAIL] 1 Constitutional Violation(s) Detected:
-
---------------------------------------------------------------------------------
-# Constitutional Violation Report #1
---------------------------------------------------------------------------------
-Rule:        ui-infrastructure-boundary
-Severity:    🔴 High | Confidence: 100%
-
-Files Affected:
-  • apps/landing/app/dashboard/page.tsx
-  • apps/landing/app/dashboard/repository/document-repository.ts
-
-## 1. Why this violates the architecture
-Presentation Layer (UI) is directly accessing Infrastructure Layer (Database).
-This bypasses the Application Layer and couples UI components directly to persistence.
-
-Reason:
-  Application Services are the only orchestration layer in a domain-driven system.
-
-Benefits of Compliance:
-  • Easier Unit Testing (mocking services instead of direct DB)
-  • Framework & Infrastructure Independence
-  • Reusable Business Logic across Web/Mobile/API
-  • Zero Data Leakage to Presentation Layer
-
-## 2. Expected Architecture
-Expected Flow:
-  UI Component  ──►  Application Service  ──►  Infrastructure / Repository
-
-Current Flow:
-  UI Component  ───────(BYPASSED SERVICE)───────►  Infrastructure / Repository  ❌
-
-## 3. Recommended Refactoring
-Instead of:  page.tsx  ──►  document-repository.ts
-Introduce:   page.tsx  ──►  WorkspaceService  ──►  document-repository.ts
-
-Suggested Responsibilities:
-  • hydrateWorkspace()
-  • fetchWorkspaceDigest()
-
-Estimated Effort: ~15 minutes
-
-## 4. Auto Fix & Architecture Impact
-Architecture Health Impact:
-  Before Fix:  38 / 100
-  After Fix:   98 / 100  (▲ +60 pts)
-
-Technical Debt Reduced:
-  -1 Constitutional Violation
-
-Auto Fix Command:
-  Run: architectos fix ui-infrastructure-boundary
-```
-
 ### Automated Refactoring (`architectos fix`)
 
 Run automated architecture boundary refactoring:
@@ -234,130 +159,12 @@ architectos fix ui-infrastructure-boundary
 
 ---
 
-## 🚀 30-Second Quickstart
-
-```bash
-architectos init
-architectos status
-architectos search auth
-```
-
-### What Happens During `architectos init`?
-
-```
-$ architectos init
-
-Detecting repository...
-✓ Next.js
-✓ React
-✓ TypeScript
-✓ Prisma
-✓ pnpm workspace
-
-Loading plugins...
-✓ @architectos/plugin-next
-✓ @architectos/plugin-react
-✓ @architectos/plugin-prisma
-
-Building Digital Twin...
-✓ AST parsed
-✓ Knowledge graph built
-✓ Architecture graph indexed
-✓ AI context generated
-
-Done. Run: architectos status
-```
-
-### Digital Twin Status Summary (`architectos status`)
-
-```
-$ architectos status
-
-Repository       Preceda
-Health           98/100
-Architecture     Healthy
-Cycles           0
-Violations       0
-Services         74
-Endpoints        261
-Database Tables  81
-AI Readiness     99/100
-```
-
----
-
-## 📁 What `architectos init` Generates
-
-ArchitectOS builds a local, self-contained digital twin repository directory:
-
-```
-.architectos/
-    graph.db         # Semantic & Knowledge Graph
-    health.json      # Engineering Health Matrix
-    context/         # AI Context Index
-    cache/           # AST Analysis Cache
-    memory/          # Persistent Repository Memory Store
-    plugins.json     # Stack Auto-Discovery Config
-    reports/         # Generated ADRs, Audits, Diffs, & Health History
-```
-
----
-
-## 🌐 Living Digital Twin Construction Pipeline
-
-```
-Source Code ──► AST ──► Knowledge Graph ──► Architecture Graph ──► Runtime Metadata ──► Repository Memory ──► AI Context ──► Living Digital Twin
-```
-
----
-
-## 🤖 Unified AI Agent MCP Gateway
-
-ArchitectOS acts as the shared **architectural brain** for all AI coding agents:
-
-```
-Claude Code ──┐
-Cursor       ──┼──► ArchitectOS MCP ──► Living Repository Digital Twin
-Gemini CLI   ──┤
-OpenAI       ──┘
-```
-
-### Quick MCP Setup (Cursor / Claude Desktop / Windsurf)
-
-Add ArchitectOS to your `claude_desktop_config.json` or Cursor MCP settings:
-
-#### Option 1: Zero Installation (`npx`)
-```json
-{
-  "mcpServers": {
-    "architectos": {
-      "command": "npx",
-      "args": ["-y", "architectos", "mcp"]
-    }
-  }
-}
-```
-
-#### Option 2: Global CLI Installation (`npm i -g architectos`)
-```json
-{
-  "mcpServers": {
-    "architectos": {
-      "command": "architectos",
-      "args": ["mcp"]
-    }
-  }
-}
-```
-
----
-
 ## 💻 CLI Commands (Grouped into 4 Categories)
 
 ### 1. Setup & Diagnostics
 ```bash
 architectos init               # Zero-config stack auto-detect & full repository indexing
-architectos status             # View repository digital twin health & metrics summary
+architectos status             # View WOW repository digital twin health & metrics summary
 architectos doctor             # Run system diagnostic check (Graph, Plugins, MCP status)
 architectos index              # Re-index codebase & update digital twin graph cache
 ```
@@ -391,20 +198,25 @@ architectos adr generate       # Automatically generate Architecture Decision Re
 
 ---
 
-## 🔌 Auto-Detected Plugins Marketplace
+## 🐕 Self-Hosted Architecture
 
-ArchitectOS automatically detects your stack and loads matching plugins:
+> **"ArchitectOS is built, governed, and quality-assured by ArchitectOS."**
 
-* **✓ Next.js** (`@architectos/plugin-next`) – Next.js App Router & Server Components
-* **✓ React** (`@architectos/plugin-react`) – React Component Hierarchy
-* **✓ NestJS / Express** – API Controllers & Routing Graphs
-* **✓ Prisma** (`@architectos/plugin-prisma`) – Prisma ORM Entities & Schema
-* **✓ PostgreSQL / Supabase** – SQL Schemas & Table Relations
-* **✓ Docker** (`@architectos/plugin-docker`) – Container Networks & Services
-* **✓ Kubernetes** – Pod Topology & Helm Charts
-* **✓ Terraform** (`@architectos/plugin-terraform`) – Infrastructure-as-Code Graph
-* **✓ Temporal** (`@architectos/plugin-temporal`) – Workflow & Activity Graphs
-* **✓ Kafka** (`@architectos/plugin-kafka`) – Topics & Event Stream Topology
+We use ArchitectOS to analyze, govern, and maintain the software architecture of ArchitectOS itself:
+
+```
+$ architectos status
+
+Repository       architectos
+Health           91/100
+Architecture     Healthy
+Cycles           0
+Violations       0
+Services         3 (@architectos/core, cli, mcp)
+Endpoints        12
+Database Tables  6
+AI Readiness     100/100
+```
 
 ---
 
