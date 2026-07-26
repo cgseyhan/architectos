@@ -6,12 +6,12 @@
     "url": "https://github.com/cgseyhan/architectos",
     "source": "github"
   },
-  "version": "0.1.15",
+  "version": "0.1.16",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "architectos",
-      "version": "0.1.15",
+      "version": "0.1.16",
       "transport": {
         "type": "stdio"
       }

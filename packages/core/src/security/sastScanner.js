@@ -10,7 +10,7 @@ const SAST_RULES = [
     name: "SQL Injection via Dynamic String Concatenation",
     severity: "CRITICAL",
     cwe: "CWE-89",
-    pattern: /(?:SELECT|INSERT|UPDATE|DELETE|DROP|ALTER)\s+.*?(?:\+|\bformat\b|\$\{).*?(?:FROM|WHERE|SET|VALUES)/i,
+    pattern: /(?:SELECT|INSERT|UPDATE|DELETE|DROP|ALTER)\s+.*?(?:["']\s*\+\s*[A-Za-z_$]|[A-Za-z_$0-9)]\s*\+\s*["']|\bformat\s*\(|f["'].*?\{|\$\{).*?(?:FROM|WHERE|SET|VALUES)/i,
     isLiteralSafe: false,
   },
   {
@@ -66,7 +66,7 @@ const SAST_RULES = [
     name: "Hardcoded High-Entropy API Key / Token",
     severity: "CRITICAL",
     cwe: "CWE-798",
-    pattern: /(?:AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}|eyJhbGciOi[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|-----BEGIN\s+(?:RSA\s+)?PRIVATE\s+KEY-----)/,
+    pattern: /(?:AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}|eyJhbGciOi[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|-----BEGIN\s+(?:RSA\s+)?PRIVATE\s+KEY-----\s*MII)/,
     isLiteralSafe: false,
   },
 ];
@@ -102,8 +102,10 @@ function scanCodeForVulnerabilities(content, filePath) {
       if (rule.pattern.test(lineText)) {
         // Taint Check 1: Static Literal HTML assignment is safe for innerHTML (e.g. innerHTML = '' or innerHTML = '<p></p>')
         if (rule.isLiteralSafe) {
+          const nextLines = lines.slice(Math.max(0, index - 2), Math.min(lines.length, index + 4)).join(' ');
+          const isSanitized = /(?:sanitizeHtml|sanitize|DOMPurify\.sanitize|json\.dumps)\b/i.test(nextLines);
           const isStaticLiteral = /innerHTML\s*=\s*[`'"].*?[`'"];?$/i.test(trimmed) && !trimmed.includes('${');
-          if (isStaticLiteral) continue;
+          if (isSanitized || isStaticLiteral) continue;
         }
 
         vulnerabilities.push({
