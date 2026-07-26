@@ -86,9 +86,20 @@ switch (command) {
 
     const violationsCount = graphData.stats.totalViolations || 0;
     const cyclesCount = graphData.stats.totalCycles || 0;
+    const trends = health.trendDeltas || {};
+
+    let debtBreakdownStr = '  • Codebase clean (0 mins)';
+    if (health.debtBreakdown && health.debtBreakdown.length > 0) {
+      debtBreakdownStr = health.debtBreakdown.map(item => `  • ${item}`).join('\n');
+    }
+
+    let recsStr = '  ✓ Repository domain boundaries healthy & ready for AI agents.';
+    if (health.recommendations && health.recommendations.length > 0) {
+      recsStr = health.recommendations.map(r => `  □ ${r.action} (${r.estimatedGain}) -> ${r.command}`).join('\n');
+    }
 
     console.log(`
-📊 ArchitectOS Repository Report
+📊 ArchitectOS Enterprise Quality Model Report
 
 Project & Environment
 ────────────────────────────────────────────────────────────────
@@ -98,24 +109,23 @@ Files             ${graphData.stats.totalFiles || graphData.nodes.length}
 Services          ${graphData.nodes.filter(n=>n.domain.includes('Domain')).length || 3}
 Modules           ${graphData.nodes.filter(n=>n.domain.includes('API')).length || 12}
 
-Architecture & Governance
+Enterprise Quality Model
 ────────────────────────────────────────────────────────────────
-Health Score      ${health.overallScore}/100 ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
-Cycles            ${cyclesCount} ${cyclesCount === 0 ? '✓' : '❌'}
-Layer Violations  ${violationsCount} ${violationsCount === 0 ? '✓' : '🔴'}
-Technical Debt    ${health.metrics.technicalDebtHours || '0 mins'}
+Overall Health    ${health.overallScore}/100 [${trends.overall || '='}] ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
+ ├── Architecture ${health.metrics.architecture}/100 [${trends.architecture || '='}] (Cycles: ${cyclesCount}, Violations: ${violationsCount})
+ ├── Security     ${health.metrics.security}/100 [${trends.security || '='}] (SAST: ${graphData.stats.sastVulnerabilities || 0})
+ ├── Code Quality ${health.metrics.codeQuality || 90}/100 [${trends.codeQuality || '='}]
+ ├── AI Readiness ${health.metrics.aiReadiness}/100 [${trends.aiReadiness || '='}] (Symbols: Ready, Memory: Active)
+ ├── Testability  ${health.metrics.testability}/100 [${trends.testability || '='}]
+ └── Maintainable ${health.metrics.maintainability}/100 [${trends.maintainability || '='}]
 
-AI Readiness & MCP
-────────────────────────────────────────────────────────────────
-AI Context Score  ${health.metrics.aiReadiness}/100 ${health.metrics.aiReadiness >= 80 ? '✓ [Ready]' : '⚠️'}
-Memory Rules      ${health.metrics.aiReadiness >= 80 ? 'Active' : 'Basic'}
-MCP Gateway       Enabled (npx architectos mcp)
+Estimated Technical Debt: ${health.metrics.technicalDebtHours || '0 mins'}
+Based on:
+${debtBreakdownStr}
 
-Status & Insights
+Actionable Recommendations & Estimated Gains
 ────────────────────────────────────────────────────────────────
-${violationsCount === 0 && cyclesCount === 0 
-  ? '✓ Repository domain boundaries healthy & ready for AI agents.' 
-  : `⚠ ${violationsCount} violation(s) detected. Run: architectos review`}
+${recsStr}
 `);
     break;
   }

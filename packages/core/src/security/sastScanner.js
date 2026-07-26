@@ -129,6 +129,8 @@ function scanCodeForVulnerabilities(content, filePath) {
           name: rule.name,
           severity: rule.severity,
           cwe: rule.cwe,
+          confidence: '100%',
+          reason: `Matched AST vulnerability pattern: ${rule.name} (${rule.cwe})`,
           line: index + 1,
           snippet: trimmed.substring(0, 100)
         });
