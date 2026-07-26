@@ -6,6 +6,16 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Format developer remediation time (in minutes) into human-readable hours/minutes
+ */
+function formatRemediationTime(totalMinutes) {
+  if (totalMinutes <= 0) return '0 mins (Clean)';
+  if (totalMinutes < 60) return `${totalMinutes} mins`;
+  const hours = (totalMinutes / 60).toFixed(1);
+  return `${hours} hrs`;
+}
+
 function calculateHealth(graphData, targetDir = process.cwd()) {
   const { nodes, edges, cycles, violations } = graphData;
 
@@ -140,9 +150,20 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
 
   const aiReadinessScore = Math.max(0, Math.min(100, Math.round(symbolRatio * 60 + memoryBonus + adrBonus)));
 
-  // 6. Technical Debt Score (Combined Accumulation)
+  // 6. Technical Debt Score & Estimated Developer Remediation Time
   const techDebtDeductions = cycleCount * 10 + violationCount * 15 + criticalSastCount * 10 + largeFiles * 3 + godComponents * 5 + deadCodeFiles * 2;
   const techDebtScore = Math.max(0, Math.min(100, 100 - techDebtDeductions));
+
+  // Calculate estimated remediation effort in minutes
+  const totalRemediationMinutes = 
+    cycleCount * 30 + 
+    violationCount * 45 + 
+    criticalSastCount * 30 + 
+    godComponents * 60 + 
+    largeFiles * 20 + 
+    deadCodeFiles * 10;
+
+  const technicalDebtHours = formatRemediationTime(totalRemediationMinutes);
 
   // 7. Overall Aggregate Health Score
   const overallScore = Math.round(
@@ -161,7 +182,8 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
       maintainability: maintainabilityScore,
       testability: testabilityScore,
       aiReadiness: aiReadinessScore,
-      technicalDebt: techDebtScore
+      technicalDebt: techDebtScore,
+      technicalDebtHours
     },
     summary: {
       totalFiles,
@@ -173,6 +195,8 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
       godComponentsCount: godComponents,
       deadCodeFilesCount: deadCodeFiles,
       supplyChainRisks,
+      totalRemediationMinutes,
+      technicalDebtHours,
       status: overallScore >= 80 ? 'PASSED' : 'ACTION_REQUIRED'
     }
   };

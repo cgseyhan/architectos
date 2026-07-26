@@ -103,7 +103,7 @@ Architecture & Governance
 Health Score      ${health.overallScore}/100 ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
 Cycles            ${cyclesCount} ${cyclesCount === 0 ? '✓' : '❌'}
 Layer Violations  ${violationsCount} ${violationsCount === 0 ? '✓' : '🔴'}
-Technical Debt    ${health.metrics.technicalDebt}/100
+Technical Debt    ${health.metrics.technicalDebtHours || '0 mins'}
 
 AI Readiness & MCP
 ────────────────────────────────────────────────────────────────
