@@ -258,6 +258,21 @@ Gemini CLI   ──┤
 OpenAI       ──┘
 ```
 
+### Quick MCP Setup (Cursor / Claude Desktop)
+
+Add ArchitectOS to your `claude_desktop_config.json` or Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "architectos": {
+      "command": "npx",
+      "args": ["-y", "architectos", "mcp"]
+    }
+  }
+}
+```
+
 ---
 
 ## 💻 CLI Commands (Grouped into 4 Categories)
