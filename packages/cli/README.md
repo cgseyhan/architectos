@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.27-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.28-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -134,6 +134,68 @@ Repository Insights
 🤖 AI System: Refactor Safety
 ────────────────────────────────────────────────────────────────
 Refactor Safety   100% (Safe for AI-assisted refactoring)
+```
+
+</details>
+
+<details>
+<summary><b>🎯 Zod (colinhacks/zod) — Overall Score: 86/100</b></summary>
+
+```
+📊 ArchitectOS Repository Status
+
+Project & Environment: colinhacks/zod (430 files)
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     86/100 ✅ [Healthy]
+ ├── Architecture 80/100 -> Reason: Clean domain boundaries & DAG graph integrity
+ ├── Security     95/100 -> Reason: 1 Supply Chain Risk(s)
+ ├── Code Quality 94/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 67/100 -> Reason: Missing persistent memory rules or ADRs
+ ├── Testability  100/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 86/100 -> Reason: 199 Dead Code file(s) detected
+
+Repository Insights
+ ├── Largest Module        types.ts (5,139 lines)
+ ├── Most Connected        language-server.source.ts (1 dependency)
+ ├── Circular Dependencies 0
+ └── Dead Code             199 file(s)
+
+🤖 AI System: Refactor Safety
+────────────────────────────────────────────────────────────────
+Refactor Safety   100% (Safe for AI-assisted refactoring)
+```
+
+</details>
+
+<details>
+<summary><b>⚡ Fastify (fastify/fastify) — Overall Score: 79/100</b></summary>
+
+```
+📊 ArchitectOS Repository Status
+
+Project & Environment: fastify/fastify (293 files)
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     79/100 ⚠️ [Action Required]
+ ├── Architecture 50/100 -> Reason: 6 God Component(s)
+ ├── Security     100/100 -> Reason: Zero SAST vulnerabilities & secrets detected
+ ├── Code Quality 88/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 69/100 -> Reason: Missing persistent memory rules or ADRs
+ ├── Testability  100/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 88/100 -> Reason: 48 Dead Code file(s) detected
+
+Repository Insights
+ ├── Largest Module        hooks.test.js (3,673 lines)
+ ├── Most Connected        fastify.js (91 dependencies)
+ ├── Circular Dependencies 0
+ └── Dead Code             48 file(s)
+
+🤖 AI System: Refactor Safety
+────────────────────────────────────────────────────────────────
+Refactor Safety   70% (Safe for AI-assisted refactoring)
 ```
 
 </details>
