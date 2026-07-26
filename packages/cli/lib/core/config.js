@@ -109,6 +109,15 @@ function loadConfig(targetDir = process.cwd()) {
   return baseConfig;
 }
 
+function initConfig(targetDir = process.cwd()) {
+  const configPath = path.join(targetDir, 'architectos.config.json');
+  const detected = autoDetectStack(targetDir);
+  const finalConfig = { ...DEFAULT_CONFIG, ...detected };
+
+  fs.writeFileSync(configPath, JSON.stringify(finalConfig, null, 2), 'utf-8');
+  return { configPath, detected };
+}
+
 function addPlugin(targetDir = process.cwd(), pluginName) {
   const config = loadConfig(targetDir);
   const plugins = Array.from(new Set([...(config.plugins || []), pluginName]));

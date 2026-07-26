@@ -10,7 +10,7 @@
  * @license MIT
  */
 
-const { loadConfig, initConfig, autoDetectStack, DEFAULT_CONFIG } = require('./config');
+const { loadConfig, initConfig, autoDetectStack, DEFAULT_CONFIG, addPlugin, removePlugin } = require('./config');
 const GraphBuilder = require('./graph/builder');
 const { calculateHealth } = require('./graph/health');
 const { analyzeImpact } = require('./graph/impact');
@@ -20,6 +20,7 @@ const AdrEngine = require('./adr');
 const { calculateDiff } = require('./diff');
 const { evaluateAiContext } = require('./eval');
 const { generateRefactoringPlan } = require('./plan');
+const { runDoctor, searchArchitecture, traceFlow, getTimeline, simulateChange, getEnterpriseInsights } = require('./twin');
 const { exportGraph } = require('./export');
 const { watchRepository } = require('./watch');
 const { NodeType, EdgeType, ArchitecturalStyle } = require('./types');

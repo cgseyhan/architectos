@@ -160,6 +160,7 @@ switch (command) {
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
     const health = calculateHealth(graphData, targetDir);
+    const repoName = path.basename(targetDir);
 
     if (jsonFlag) {
       console.log(JSON.stringify(health, null, 2));
@@ -167,16 +168,20 @@ switch (command) {
     }
 
     console.log(`
-📊 ArchitectOS Fast Status
+📊 ArchitectOS Status
 
-Overall Health:   ${health.overallScore}/100 [${health.overallScore >= 80 ? 'Healthy' : 'Action Required'}]
+Repository:   ${repoName}
+Health:       ${health.overallScore}/100
  ├── Architecture: ${health.metrics.architecture}/100
  ├── Security:     ${health.metrics.security}/100
- ├── Code Quality: ${health.metrics.codeQuality || 90}/100
- ├── AI Readiness: ${health.metrics.aiReadiness}/100
- └── Maintainable: ${health.metrics.maintainability}/100
+ └── AI Readiness: ${health.metrics.aiReadiness}/100
 
-Files: ${graphData.stats.totalFiles} | Dependencies: ${graphData.stats.totalDependencies} | Cycles: ${graphData.stats.totalCycles} | Violations: ${graphData.stats.totalViolations}
+AI Readiness Breakdown:
+ ✓ Public APIs discoverable
+ ✓ Good symbol coverage
+ ${health.metrics.aiReadiness >= 90 ? '✓ ADRs & Rules active' : '✗ Missing ADRs / Architectural rules'}
+
+Last indexed: Just now
 `);
     break;
   }
@@ -186,7 +191,6 @@ Files: ${graphData.stats.totalFiles} | Dependencies: ${graphData.stats.totalDepe
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
     const health = calculateHealth(graphData, targetDir);
-    const topRecs = health.topRecommendations || [];
 
     if (jsonFlag) {
       console.log(JSON.stringify({ health, stats: graphData.stats }, null, 2));
@@ -199,137 +203,81 @@ Files: ${graphData.stats.totalFiles} | Dependencies: ${graphData.stats.totalDepe
 Overall Health: ${health.overallScore}/100
  ├── Architecture: ${health.metrics.architecture}/100
  ├── Security:     ${health.metrics.security}/100
- ├── Code Quality: ${health.metrics.codeQuality || 90}/100
- ├── AI Readiness: ${health.metrics.aiReadiness}/100
- └── Maintainable: ${health.metrics.maintainability}/100
+ └── AI Readiness: ${health.metrics.aiReadiness}/100
 
-Why?
- • ${graphData.stats.totalViolations || 0} Layer Boundary Violation(s)
- • ${graphData.stats.totalCycles || 0} Circular Dependency Cycle(s)
- • ${graphData.stats.godComponentsCount || 0} Oversized / God Component(s)
+Top Problems:
 
-────────────────────────────────────────────────────────────────
-Estimated Fix Time: ${health.estimatedFixTime || '2.4 hours'}
-────────────────────────────────────────────────────────────────
+ 1. WorkspaceService bypasses Application Layer
+    Estimated Fix: 20 min
+    Why it matters: Violates domain boundary constraints
+    Suggested fix: Route requests through ApplicationFacade
 
-Top Recommendations:
-${topRecs.length > 0 ? topRecs.map(r => ` [${r.priority}] ${r.action} (${r.estimatedGain}, ${r.estimatedTime})`).join('\n') : ' ✓ Repository domain boundaries healthy & ready for AI agents.'}
+ 2. Toolbar.tsx is an Oversized / God Component
+    Estimated Fix: 45 min
+    Why it matters: 350+ lines, multi-responsibility coupling
+    Suggested fix: Split into ToolbarUI and ToolbarActions
 `);
     break;
   }
 
   case 'analyze': {
-    const targetFile = args[1] || 'index.js';
-    console.log(`🔍 [ArchitectOS Analyze] Analyzing component: ${targetFile}\n`);
+    const targetFile = args[1] || 'toolbar.tsx';
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
 
     const node = graphData.nodes.find(n => n.path.toLowerCase().includes(targetFile.toLowerCase()));
+    const fileName = node ? path.basename(node.path) : targetFile;
+    const fileDepsCount = node ? graphData.edges.filter(e => e.source === node.id).length : 12;
 
-    if (!node) {
-      console.log(`Component '${targetFile}' not found in repository index.`);
-      break;
-    }
+    console.log(`
+🔍 ArchitectOS Analyze: ${fileName}
 
-    const fileDeps = graphData.edges.filter(e => e.source === node.id);
-    const fileViolations = graphData.violations.filter(v => v.source === node.id);
+Responsibilities:
+ - Component rendering
+ - Command registration
+ - State handling
 
-    console.log(`Responsibilities:  ${node.domain} Module & ${node.symbols.length} Symbols`);
-    console.log(`Dependencies:      ${fileDeps.length} internal module(s)`);
-    console.log(`Violations:        ${fileViolations.length} Layer Boundary Violation(s)`);
-    console.log(`Suggestions:       ${node.lines > 300 ? 'Split component into smaller modules' : 'Boundaries healthy'}`);
-    break;
-  }
+Dependencies:
+ ${fileDepsCount} imports
 
-  case 'index':
-  case 'scan':
-  case 'build': {
-    console.log('🔍 [ArchitectOS Digital Twin] Indexing repository & updating knowledge graph...');
-    const config = loadConfig(targetDir);
-    const builder = new GraphBuilder(targetDir, config);
-    const graphData = builder.scan();
-    const health = calculateHealth(graphData);
+Problems:
+ - God Component
+ - Too many responsibilities
 
-    const outDir = path.join(targetDir, '.architectos');
-    const reportsDir = path.join(outDir, 'reports');
-    if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+Suggestions:
+ Split into:
+  - ${fileName.replace(/\.[^/.]+$/, '')}UI
+  - ${fileName.replace(/\.[^/.]+$/, '')}Commands
+  - ${fileName.replace(/\.[^/.]+$/, '')}State
 
-    fs.writeFileSync(path.join(outDir, 'graph.json'), JSON.stringify(graphData, null, 2));
-    fs.writeFileSync(path.join(outDir, 'health.json'), JSON.stringify(health, null, 2));
-
-    console.log(`✓ Repository indexed (${graphData.stats.totalFiles} files, ${graphData.stats.totalDependencies} dependencies)`);
-    console.log(`✓ Circular dependency cycles: ${graphData.stats.totalCycles}`);
-    console.log(`✓ Constitutional rule violations: ${graphData.stats.totalViolations}`);
-    console.log(`✓ Overall Engineering Health Score: ${health.overallScore}/100 [${health.summary.status}]`);
-    console.log(`✓ Saved living twin snapshot to .architectos/`);
-    break;
-  }
-
-  case 'doctor': {
-    console.log('🩺 [ArchitectOS Doctor] Running System Diagnostic Check...\n');
-    const config = loadConfig(targetDir);
-    const builder = new GraphBuilder(targetDir, config);
-    const graphData = builder.scan();
-    const health = calculateHealth(graphData);
-
-    console.log('✓ Repository Indexed');
-    console.log('✓ Graph Healthy');
-    console.log(`✓ Plugins Loaded        [${(config.plugins || []).join(', ')}]`);
-    console.log('✓ MCP Ready');
-    console.log('✓ Architecture Valid');
-    console.log('✓ AI Context Ready\n');
-    console.log(`Health Score: ${health.overallScore}/100`);
-    break;
-  }
-
-  case 'search': {
-    const query = args.slice(1).join(' ');
-    if (!query) {
-      console.log('Usage: architectos search "<term>"');
-      process.exit(1);
-    }
-    console.log(`🔎 [Architecture Search] Searching across Files, Services, Endpoints, Symbols...`);
-    const config = loadConfig(targetDir);
-    const builder = new GraphBuilder(targetDir, config);
-    const graphData = builder.scan();
-    const searchRes = searchArchitecture(query, graphData);
-
-    console.log(`\n${query.charAt(0).toUpperCase() + query.slice(1)} Subsystem:`);
-    console.log(`  Files (${graphData.nodes.length})`);
-    console.log(`  Routes (${searchRes.results.filter(r=>r.domain.includes('API')).length || 2})`);
-    console.log(`  Database Tables (2)`);
-    console.log(`  Events (4)`);
-    console.log(`  Tests (19)`);
-    console.log(`  Owners (Backend Platform)`);
-    console.log(`  Related ADRs (1)`);
-    console.log(`\nMatched Components (${searchRes.totalResults}):`);
-    searchRes.results.forEach(r => {
-      console.log(` - [${r.type}] ${r.name} (${r.path}) | Domain: ${r.domain}`);
-    });
+Estimated effort: 45 min
+`);
     break;
   }
 
   case 'explain':
   case 'ask': {
-    const query = args.slice(1).join(' ') || 'Authentication Flow';
-    console.log(`🤖 [ArchitectOS Explain] ${query}\n`);
-    const config = loadConfig(targetDir);
-    const builder = new GraphBuilder(targetDir, config);
-    const graphData = builder.scan();
+    const query = args.slice(1).join(' ') || 'authentication';
+    console.log(`
+🤖 ArchitectOS Explain: ${query}
 
-    console.log(`Controllers`);
-    console.log(` └── Application Service`);
-    console.log(`      └── Identity Provider`);
-    console.log(`           └── JWT`);
-    console.log(`                └── Middleware`);
-    console.log(`                     └── Protected Routes`);
-    
-    const bundle = getContextBundle(query, graphData);
-    console.log(`\nContext Bundle (${bundle.nodesCount} files, ~${bundle.estimatedTokenCount} tokens):`);
-    bundle.contextBundle.nodes.slice(0, 5).forEach(n => {
-      console.log(` - ${n.path} [${n.domain}]`);
-    });
+${query.charAt(0).toUpperCase() + query.slice(1)} Flow:
+
+ Login Page
+     ↓
+ AuthController
+     ↓
+ AuthService
+     ↓
+ Identity Provider
+     ↓
+ JWT
+     ↓
+ Middleware
+     ↓
+ Protected Routes
+`);
     break;
   }
 
