@@ -1,0 +1,16 @@
+{
+  "name": "architectos-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "init": "node packages/cli/bin/architectos.js init",
+    "scan": "node packages/cli/bin/architectos.js scan",
+    "check": "node packages/cli/bin/architectos.js check",
+    "dev": "node packages/cli/bin/architectos.js dev",
+    "mcp": "node packages/cli/bin/architectos.js mcp",
+    "ask": "node packages/cli/bin/architectos.js ask"
+  },
+  "devDependencies": {}
+}

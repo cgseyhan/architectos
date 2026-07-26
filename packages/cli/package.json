@@ -1,0 +1,36 @@
+{
+  "name": "architectos",
+  "version": "0.1.9",
+  "description": "ArchitectOS - AI-Native Repository Intelligence Operating System",
+  "bin": {
+    "architectos": "bin/architectos.js"
+  },
+  "main": "bin/architectos.js",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgseyhan/architectos.git"
+  },
+  "keywords": [
+    "architectos",
+    "architecture",
+    "digital-twin",
+    "mcp",
+    "ai",
+    "repository-intelligence",
+    "ast",
+    "graph"
+  ],
+  "author": "cgseyhan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cgseyhan/architectos/issues"
+  },
+  "homepage": "https://github.com/cgseyhan/architectos#readme",
+  "files": [
+    "bin",
+    "lib",
+    "README.md"
+  ],
+  "dependencies": {}
+}

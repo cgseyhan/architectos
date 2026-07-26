@@ -1,0 +1,8 @@
+{
+  "name": "@architectos/core",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "description": "Core intelligence, analysis graph builder, health scorer, and impact engine for ArchitectOS",
+  "dependencies": {}
+}

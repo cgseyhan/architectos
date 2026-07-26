@@ -1,0 +1,40 @@
+{
+  "project": {
+    "name": "ArchitectOS Workspace",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    "typescript",
+    "react"
+  ],
+  "languages": [
+    "javascript"
+  ],
+  "architecture": {
+    "style": "clean",
+    "rules": [
+      {
+        "id": "ui-infrastructure-boundary",
+        "name": "UI cannot import Infrastructure directly",
+        "from": "ui",
+        "disallowImport": [
+          "infrastructure",
+          "database"
+        ]
+      },
+      {
+        "id": "no-circular-dependencies",
+        "name": "Forbidden Circular Import Cycles",
+        "type": "no-cycles"
+      }
+    ]
+  },
+  "healthThresholds": {
+    "minArchitectureScore": 80,
+    "minSecurityScore": 90
+  },
+  "ai": {
+    "provider": "local",
+    "contextTokenLimit": 8192
+  }
+}
