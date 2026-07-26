@@ -2,7 +2,7 @@
 
 # ArchitectOS
 
-### ESLint for Architecture. MCP for AI. Digital Twin for Repositories.
+### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![NPM Version](https://img.shields.io/badge/npm-v0.1.13-orange.svg)](https://www.npmjs.com/package/architectos)
