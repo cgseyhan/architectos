@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.23-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.24-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -121,23 +121,34 @@ $ architectos review
 
 🛡️ [ArchitectOS Governance] Reviewing Architecture & Enforcing Constitutional Rules...
 
-================================================================================
-📊 ARCHITECTURAL SYSTEM HEALTH & GOVERNANCE MATRIX
-================================================================================
-Overall Health Score: 38/100
-Architecture Score: 0/100 | Security: 40/100 | Maintainability: 99/100
-AI Readiness Score:  41/100 | Technical Debt: 25/100
-================================================================================
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     38/100 ⚠️ [Action Required]
+ ├── Architecture 0/100  -> Reason: 4 Layer Violations, 3 Cycles
+ ├── Security     40/100 -> Reason: 1 Hardcoded Secret, 2 SAST Flaws
+ ├── Code Quality 80/100 -> Reason: 4 Large Files >300 lines
+ ├── AI Readiness 41/100 -> Reason: Missing persistent memory rules & ADRs
+ ├── Testability  50/100 -> Reason: Missing unit test assertions
+ └── Maintainable 60/100 -> Reason: 12 Dead Code file(s) detected
 
-📋 RECOMMENDED TASKS (Actionable Refactoring Checklist)
-────────────────────────────────────────────────────────────────────────────────
-[HIGH PRIORITY]
-  □ Remove 4 Presentation ──► Infrastructure direct import(s)
-  □ Break 3 Circular Dependency Cycle(s)
-  □ Record Repository Memory rules (architectos remember)
-  □ Generate missing Architecture Decision Records (architectos adr generate)
+🤖 AI System: Refactor Safety & AI Readiness
+────────────────────────────────────────────────────────────────
+Refactor Safety   45% (Requires manual developer review before AI refactoring)
 
-Estimated Health Impact: 38/100 ──► 98/100 (▲ +60 pts)
+🛡️ Governance System: Estimated Debt & Top Recommendations
+────────────────────────────────────────────────────────────────
+Estimated Technical Debt: 5.8 hrs
+Based on:
+  • 4 Layer Boundary Violation(s) (45 mins each)
+  • 3 Circular Dependency Cycle(s) (30 mins each)
+  • 2 Critical SAST Vulnerabilities (30 mins each)
+  • 4 Large File(s) >300 lines (20 mins each)
+
+Top Recommendations
+────────────────────────────────────────────────────────────────
+  [HIGH] Resolve 4 Layer Boundary Violation(s) (+15 Architecture, ~35 mins) -> architectos review
+  [HIGH] Break 3 Circular Import Cycle(s) (+10 Architecture, ~20 mins) -> architectos fix-plan
+  [MEDIUM] Generate ADRs & Repository Memory Rules (+15 AI Readiness, ~15 mins) -> architectos remember
 
 Run 'architectos fix-plan' to generate LLM prompt roadmaps for Cursor / Claude / Codex!
 ```
