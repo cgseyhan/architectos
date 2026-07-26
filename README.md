@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.25-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.26-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -75,6 +75,68 @@ Top Recommendations
 ## 🌟 Real-World Open-Source Benchmarks
 
 ArchitectOS analyzes real-world open-source repositories out of the box with zero configuration:
+
+<details>
+<summary><b>🔌 Anthropic Model Context Protocol (modelcontextprotocol/typescript-sdk) — Overall Score: 66/100</b></summary>
+
+```
+📊 ArchitectOS Repository Status
+
+Project & Environment: modelcontextprotocol/typescript-sdk (928 files)
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     66/100 ⚠️ [Action Required]
+ ├── Architecture 0/100 -> Reason: 4 Layer Violations, 5 Cycles, 8 God Components
+ ├── Security     90/100 -> Reason: 3 SAST Flaw(s)
+ ├── Code Quality 92/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 67/100 -> Reason: Missing persistent memory rules or ADRs
+ ├── Testability  100/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 93/100 -> Reason: 87 Dead Code file(s) detected
+
+Repository Insights
+ ├── Largest Module        mcp.test.ts (6,376 lines)
+ ├── Most Connected        types.ts (45 dependencies)
+ ├── Circular Dependencies 5
+ └── Dead Code             87 file(s)
+
+🤖 AI System: Refactor Safety
+────────────────────────────────────────────────────────────────
+Refactor Safety   40% (Requires manual developer review before AI refactoring)
+```
+
+</details>
+
+<details>
+<summary><b>🤖 Anthropic Official Claude SDK (anthropics/anthropic-sdk-typescript) — Overall Score: 56/100</b></summary>
+
+```
+📊 ArchitectOS Repository Status
+
+Project & Environment: anthropics/anthropic-sdk-typescript (369 files)
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     56/100 ⚠️ [Action Required]
+ ├── Architecture 0/100 -> Reason: 1 Layer Violation, 49 Cycles, 13 God Components
+ ├── Security     50/100 -> Reason: Zero SAST vulnerabilities & secrets detected
+ ├── Code Quality 90/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 61/100 -> Reason: Missing persistent memory rules or ADRs
+ ├── Testability  100/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 89/100 -> Reason: 78 Dead Code file(s) detected
+
+Repository Insights
+ ├── Largest Module        messages.ts (5,680 lines)
+ ├── Most Connected        client.ts (45 dependencies)
+ ├── Circular Dependencies 49
+ └── Dead Code             78 file(s)
+
+🤖 AI System: Refactor Safety
+────────────────────────────────────────────────────────────────
+Refactor Safety   40% (Requires manual developer review before AI refactoring)
+```
+
+</details>
 
 <details>
 <summary><b>🐻 Zustand (pmndrs/zustand) — Overall Score: 87/100</b></summary>
