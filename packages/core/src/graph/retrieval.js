@@ -4,22 +4,45 @@
 
 function getContextBundle(query, graphData, tokenBudget = 4096) {
   const { nodes, edges } = graphData;
-  const qTokens = query.toLowerCase().split(/\s+/);
+  const qTokens = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+  const totalDocs = Math.max(nodes.length, 1);
 
-  // Score relevance for each node based on query keywords and domain
+  // Compute node degree map for graph proximity score
+  const degreeMap = new Map();
+  for (const edge of edges) {
+    degreeMap.set(edge.source, (degreeMap.get(edge.source) || 0) + 1);
+    degreeMap.set(edge.target, (degreeMap.get(edge.target) || 0) + 1);
+  }
+
+  // Calculate BM25 + Graph Proximity hybrid score for each node
   const scoredNodes = nodes.map(node => {
-    let score = 0;
+    let bm25Score = 0;
     const nameNorm = node.name.toLowerCase();
     const pathNorm = node.path.toLowerCase();
+    const domainNorm = node.domain.toLowerCase();
 
     for (const tok of qTokens) {
-      if (tok.length < 2) continue;
-      if (nameNorm.includes(tok)) score += 30;
-      if (pathNorm.includes(tok)) score += 15;
-      if (node.domain.toLowerCase().includes(tok)) score += 20;
+      // Term Frequency
+      let tf = 0;
+      if (nameNorm.includes(tok)) tf += 3;
+      if (pathNorm.includes(tok)) tf += 2;
+      if (domainNorm.includes(tok)) tf += 2;
+
+      if (tf > 0) {
+        // Inverse Document Frequency approximation
+        const docCount = nodes.filter(n => n.name.toLowerCase().includes(tok) || n.path.toLowerCase().includes(tok)).length || 1;
+        const idf = Math.log((totalDocs + 1) / docCount);
+        bm25Score += (tf * (1.5 + 1)) / (tf + 1.5) * idf;
+      }
     }
 
-    return { node, score };
+    const degree = degreeMap.get(node.id) || 0;
+    const graphProximityScore = Math.min(degree * 2, 10);
+
+    // Hybrid Score: 60% BM25 + 40% Graph Proximity
+    const hybridScore = (bm25Score * 10 * 0.6) + (graphProximityScore * 0.4);
+
+    return { node, score: hybridScore };
   }).sort((a, b) => b.score - a.score);
 
   const selectedNodes = [];
@@ -42,6 +65,7 @@ function getContextBundle(query, graphData, tokenBudget = 4096) {
     tokenBudget,
     estimatedTokenCount: estimatedTokens,
     nodesCount: selectedNodes.length,
+    retrievalEngine: "BM25 + AST Graph Proximity (Hybrid)",
     contextBundle: {
       nodes: selectedNodes,
       edges: relevantEdges

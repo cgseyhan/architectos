@@ -80,32 +80,58 @@ function autoDetectStack(targetDir = process.cwd()) {
 }
 
 function loadConfig(targetDir = process.cwd()) {
+  let baseConfig = { ...DEFAULT_CONFIG };
   const configPathJson = path.join(targetDir, 'architectos.config.json');
   if (fs.existsSync(configPathJson)) {
     try {
       const raw = fs.readFileSync(configPathJson, 'utf-8');
-      return { ...DEFAULT_CONFIG, ...JSON.parse(raw) };
+      baseConfig = { ...baseConfig, ...JSON.parse(raw) };
     } catch (e) {
       console.warn(`[ArchitectOS] Warning parsing ${configPathJson}, using default config.`, e.message);
     }
+  } else {
+    const detected = autoDetectStack(targetDir);
+    baseConfig = { ...baseConfig, ...detected };
   }
 
-  const detected = autoDetectStack(targetDir);
-  return { ...DEFAULT_CONFIG, ...detected };
+  // Parse .architectosignore file if present
+  const ignoreFile = path.join(targetDir, '.architectosignore');
+  if (fs.existsSync(ignoreFile)) {
+    try {
+      const ignoreLines = fs.readFileSync(ignoreFile, 'utf-8')
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .filter(l => l && !l.startsWith('#'));
+      baseConfig.exclude = Array.from(new Set([...(baseConfig.exclude || []), ...ignoreLines]));
+    } catch (e) {}
+  }
+
+  return baseConfig;
 }
 
-function initConfig(targetDir = process.cwd()) {
+function addPlugin(targetDir = process.cwd(), pluginName) {
+  const config = loadConfig(targetDir);
+  const plugins = Array.from(new Set([...(config.plugins || []), pluginName]));
+  config.plugins = plugins;
   const configPath = path.join(targetDir, 'architectos.config.json');
-  const detected = autoDetectStack(targetDir);
-  const finalConfig = { ...DEFAULT_CONFIG, ...detected };
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+  return plugins;
+}
 
-  fs.writeFileSync(configPath, JSON.stringify(finalConfig, null, 2), 'utf-8');
-  return { configPath, detected };
+function removePlugin(targetDir = process.cwd(), pluginName) {
+  const config = loadConfig(targetDir);
+  const plugins = (config.plugins || []).filter(p => p !== pluginName);
+  config.plugins = plugins;
+  const configPath = path.join(targetDir, 'architectos.config.json');
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+  return plugins;
 }
 
 module.exports = {
   DEFAULT_CONFIG,
   autoDetectStack,
   loadConfig,
-  initConfig
+  initConfig,
+  addPlugin,
+  removePlugin
 };

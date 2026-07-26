@@ -20,7 +20,8 @@ const AdrEngine = require('./adr');
 const { calculateDiff } = require('./diff');
 const { evaluateAiContext } = require('./eval');
 const { generateRefactoringPlan } = require('./plan');
-const { runDoctor, searchArchitecture, traceFlow, getTimeline, simulateChange, getEnterpriseInsights } = require('./twin');
+const { exportGraph } = require('./export');
+const { watchRepository } = require('./watch');
 const { NodeType, EdgeType, ArchitecturalStyle } = require('./types');
 
 /**
@@ -167,6 +168,8 @@ module.exports = {
   initConfig,
   autoDetectStack,
   DEFAULT_CONFIG,
+  addPlugin,
+  removePlugin,
   GraphBuilder,
   calculateHealth,
   analyzeImpact,
@@ -182,6 +185,8 @@ module.exports = {
   getTimeline,
   simulateChange,
   getEnterpriseInsights,
+  exportGraph,
+  watchRepository,
   NodeType,
   EdgeType,
   ArchitecturalStyle

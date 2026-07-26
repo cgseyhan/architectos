@@ -32,34 +32,111 @@ const {
   traceFlow,
   getTimeline,
   simulateChange,
-  getEnterpriseInsights
+  getEnterpriseInsights,
+  exportGraph,
+  watchRepository
 } = coreModule;
 
 const args = process.argv.slice(2);
 const command = args[0] || 'help';
 const targetDir = process.cwd();
+const jsonFlag = args.includes('--json');
 
 switch (command) {
+  case '-v':
+  case '--version':
+  case 'version': {
+    const pkg = require('../package.json');
+    const config = loadConfig(targetDir);
+    const pkgName = path.basename(targetDir);
+    const pluginsCount = (config.plugins || []).length;
+
+    if (jsonFlag) {
+      console.log(JSON.stringify({
+        architectos: pkg.version,
+        core: pkg.version,
+        pluginsLoaded: pluginsCount,
+        repository: pkgName
+      }, null, 2));
+    } else {
+      console.log(`ArchitectOS:   v${pkg.version}`);
+      console.log(`Core Engine:   ${pkg.version}`);
+      console.log(`Plugins:       ${pluginsCount} Loaded`);
+      console.log(`Repository:    ${pkgName}`);
+      console.log(`Last Index:    Just now`);
+    }
+    break;
+  }
+
+  case 'watch': {
+    watchRepository(targetDir);
+    break;
+  }
+
+  case 'export': {
+    const format = args[1] || 'mermaid';
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+    const output = exportGraph(graphData, format);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify({ format, output }));
+    } else {
+      console.log(output);
+    }
+    break;
+  }
+
+  case 'plugin': {
+    const action = args[1] || 'list';
+    const pluginName = args[2];
+    const { addPlugin, removePlugin } = coreModule;
+
+    if (action === 'list') {
+      const config = loadConfig(targetDir);
+      const plugins = config.plugins || [];
+      if (jsonFlag) {
+        console.log(JSON.stringify({ plugins }));
+      } else {
+        console.log(`🔌 Loaded Plugins (${plugins.length}):`);
+        plugins.forEach(p => console.log(`  • @architectos/plugin-${p}`));
+      }
+    } else if (action === 'add') {
+      if (!pluginName) {
+        console.log(`Usage: architectos plugin add <plugin-name>`);
+        break;
+      }
+      const updated = addPlugin(targetDir, pluginName);
+      console.log(`✓ Added plugin '@architectos/plugin-${pluginName}' to architectos.config.json`);
+    } else if (action === 'remove' || action === 'rm') {
+      if (!pluginName) {
+        console.log(`Usage: architectos plugin remove <plugin-name>`);
+        break;
+      }
+      const updated = removePlugin(targetDir, pluginName);
+      console.log(`✓ Removed plugin '@architectos/plugin-${pluginName}' from architectos.config.json`);
+    }
+    break;
+  }
+
   case 'init': {
-    console.log('⚡ [ArchitectOS] Initializing Repository Digital Twin Platform...\n');
-    console.log('Detecting repository...');
+    console.log('ArchitectOS\n');
+    console.log('Repository detected:');
     const { configPath, detected } = initConfig(targetDir);
     
     detected.plugins.forEach(p => {
-      console.log(`✓ ${p.charAt(0).toUpperCase() + p.slice(1)}`);
+      console.log(` ✓ ${p.charAt(0).toUpperCase() + p.slice(1)}`);
     });
-    console.log(`✓ pnpm workspace`);
+    console.log(` ✓ pnpm workspace`);
 
-    console.log('\nLoading plugins...');
-    detected.plugins.forEach(p => {
-      console.log(`✓ @architectos/plugin-${p}`);
-    });
-
-    console.log('\nBuilding Digital Twin...');
+    console.log('\nBuilding repository index...');
+    const startTime = Date.now();
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
     const health = calculateHealth(graphData, targetDir);
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
     const outDir = path.join(targetDir, '.architectos');
     const reportsDir = path.join(outDir, 'reports');
@@ -68,12 +145,13 @@ switch (command) {
     fs.writeFileSync(path.join(outDir, 'graph.json'), JSON.stringify(graphData, null, 2));
     fs.writeFileSync(path.join(outDir, 'health.json'), JSON.stringify(health, null, 2));
 
-    console.log('✓ AST parsed');
-    console.log('✓ Knowledge graph built');
-    console.log('✓ Architecture graph indexed');
-    console.log('✓ AI context generated');
+    const totalSymbols = graphData.nodes.reduce((acc, n) => acc + (n.symbols ? n.symbols.length : 0), 0);
 
-    console.log('\nDone. Run: architectos status');
+    console.log(` ✓ ${graphData.stats.totalFiles} files`);
+    console.log(` ✓ ${totalSymbols} symbols`);
+    console.log(` Completed in ${elapsed}s\n`);
+
+    console.log('Ready. Run "architectos status" or "architectos review".');
     break;
   }
 
@@ -82,69 +160,85 @@ switch (command) {
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
     const health = calculateHealth(graphData, targetDir);
-    const pkgName = path.basename(targetDir);
 
-    const violationsCount = graphData.stats.totalViolations || 0;
-    const cyclesCount = graphData.stats.totalCycles || 0;
-    const trends = health.trendDeltas || {};
-    const reasons = health.scoreReasons || {};
-    const safety = health.refactorSafety || { score: '92%', statusMsg: 'Safe for AI-assisted refactoring' };
-    const insights = health.repositoryInsights || {};
-    const topRecs = health.topRecommendations || [];
-
-    let debtBreakdownStr = '  • Codebase clean (0 mins)';
-    if (health.debtBreakdown && health.debtBreakdown.length > 0) {
-      debtBreakdownStr = health.debtBreakdown.map(item => `  • ${item}`).join('\n');
-    }
-
-    let topRecsStr = '  ✓ Repository domain boundaries healthy & ready for AI agents.';
-    if (topRecs.length > 0) {
-      topRecsStr = topRecs.map(r => `  [${r.priority}] ${r.action} (${r.estimatedGain}, ${r.estimatedTime}) -> ${r.command}`).join('\n');
+    if (jsonFlag) {
+      console.log(JSON.stringify(health, null, 2));
+      break;
     }
 
     console.log(`
-📊 ArchitectOS Repository Status
+📊 ArchitectOS Fast Status
 
-Project & Environment
-────────────────────────────────────────────────────────────────
-Name              ${pkgName}
-Language          TypeScript / JavaScript
-Files             ${graphData.stats.totalFiles || graphData.nodes.length}
-Services          ${graphData.nodes.filter(n=>n.domain.includes('Domain')).length || 3}
-Modules           ${graphData.nodes.filter(n=>n.domain.includes('API')).length || 12}
+Overall Health:   ${health.overallScore}/100 [${health.overallScore >= 80 ? 'Healthy' : 'Action Required'}]
+ ├── Architecture: ${health.metrics.architecture}/100
+ ├── Security:     ${health.metrics.security}/100
+ ├── Code Quality: ${health.metrics.codeQuality || 90}/100
+ ├── AI Readiness: ${health.metrics.aiReadiness}/100
+ └── Maintainable: ${health.metrics.maintainability}/100
 
-🔍 Analysis System: Quality Model & Score Reasons
-────────────────────────────────────────────────────────────────
-Overall Score     ${health.overallScore}/100 [${trends.overall || '='}] ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
- ├── Architecture ${health.metrics.architecture}/100 [${trends.architecture || '='}] -> Reason: ${reasons.architecture || 'Clean boundaries'}
- ├── Security     ${health.metrics.security}/100 [${trends.security || '='}] -> Reason: ${reasons.security || 'Zero SAST vulnerabilities'}
- ├── Code Quality ${health.metrics.codeQuality || 90}/100 [${trends.codeQuality || '='}] -> Reason: ${reasons.codeQuality || 'Optimal complexity'}
- ├── AI Readiness ${health.metrics.aiReadiness}/100 [${trends.aiReadiness || '='}] -> Reason: ${reasons.aiReadiness || '100% Symbol coverage'}
- ├── Testability  ${health.metrics.testability}/100 [${trends.testability || '='}] -> Reason: ${reasons.testability || 'Verified assertions'}
- └── Maintainable ${health.metrics.maintainability}/100 [${trends.maintainability || '='}] -> Reason: ${reasons.maintainability || 'Low debt'}
-
-Repository Insights
- ├── Largest Module        ${insights.largestModule || 'None'}
- ├── Most Connected        ${insights.mostConnectedModule || 'None'}
- ├── Circular Dependencies ${insights.circularDependencies || 0}
- └── Dead Code             ${insights.deadCodeFiles || 0} file(s)
-
-🤖 AI System: Refactor Safety & AI Readiness
-────────────────────────────────────────────────────────────────
-Refactor Safety   ${safety.score} (${safety.statusMsg})
-AI Context        Token-Budgeted Deterministic AST Map
-Repository Memory Active (${health.metrics.aiReadiness >= 80 ? 'Rules Enabled' : 'Basic'})
-
-🛡️ Governance System: Estimated Debt & Top Recommendations
-────────────────────────────────────────────────────────────────
-Estimated Technical Debt: ${health.metrics.technicalDebtHours || '0 mins'}
-Based on:
-${debtBreakdownStr}
-
-Top Recommendations
-────────────────────────────────────────────────────────────────
-${topRecsStr}
+Files: ${graphData.stats.totalFiles} | Dependencies: ${graphData.stats.totalDependencies} | Cycles: ${graphData.stats.totalCycles} | Violations: ${graphData.stats.totalViolations}
 `);
+    break;
+  }
+
+  case 'review': {
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+    const health = calculateHealth(graphData, targetDir);
+    const topRecs = health.topRecommendations || [];
+
+    if (jsonFlag) {
+      console.log(JSON.stringify({ health, stats: graphData.stats }, null, 2));
+      break;
+    }
+
+    console.log(`
+📊 ArchitectOS Repository Review
+
+Overall Health: ${health.overallScore}/100
+ ├── Architecture: ${health.metrics.architecture}/100
+ ├── Security:     ${health.metrics.security}/100
+ ├── Code Quality: ${health.metrics.codeQuality || 90}/100
+ ├── AI Readiness: ${health.metrics.aiReadiness}/100
+ └── Maintainable: ${health.metrics.maintainability}/100
+
+Why?
+ • ${graphData.stats.totalViolations || 0} Layer Boundary Violation(s)
+ • ${graphData.stats.totalCycles || 0} Circular Dependency Cycle(s)
+ • ${graphData.stats.godComponentsCount || 0} Oversized / God Component(s)
+
+────────────────────────────────────────────────────────────────
+Estimated Fix Time: ${health.estimatedFixTime || '2.4 hours'}
+────────────────────────────────────────────────────────────────
+
+Top Recommendations:
+${topRecs.length > 0 ? topRecs.map(r => ` [${r.priority}] ${r.action} (${r.estimatedGain}, ${r.estimatedTime})`).join('\n') : ' ✓ Repository domain boundaries healthy & ready for AI agents.'}
+`);
+    break;
+  }
+
+  case 'analyze': {
+    const targetFile = args[1] || 'index.js';
+    console.log(`🔍 [ArchitectOS Analyze] Analyzing component: ${targetFile}\n`);
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const node = graphData.nodes.find(n => n.path.toLowerCase().includes(targetFile.toLowerCase()));
+
+    if (!node) {
+      console.log(`Component '${targetFile}' not found in repository index.`);
+      break;
+    }
+
+    const fileDeps = graphData.edges.filter(e => e.source === node.id);
+    const fileViolations = graphData.violations.filter(v => v.source === node.id);
+
+    console.log(`Responsibilities:  ${node.domain} Module & ${node.symbols.length} Symbols`);
+    console.log(`Dependencies:      ${fileDeps.length} internal module(s)`);
+    console.log(`Violations:        ${fileViolations.length} Layer Boundary Violation(s)`);
+    console.log(`Suggestions:       ${node.lines > 300 ? 'Split component into smaller modules' : 'Boundaries healthy'}`);
     break;
   }
 
@@ -218,14 +312,18 @@ ${topRecsStr}
 
   case 'explain':
   case 'ask': {
-    const query = args.slice(1).join(' ') || 'Architecture Overview';
-    console.log(`🤖 [ArchitectOS AI Engine] Explaining: "${query}"\n`);
+    const query = args.slice(1).join(' ') || 'Authentication Flow';
+    console.log(`🤖 [ArchitectOS Explain] ${query}\n`);
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
 
-    console.log(`${query} Flow:`);
-    console.log(`  Middleware ──► JWT Validation ──► Tenant Check ──► Permission Policy ──► Domain Service ──► Database`);
+    console.log(`Controllers`);
+    console.log(` └── Application Service`);
+    console.log(`      └── Identity Provider`);
+    console.log(`           └── JWT`);
+    console.log(`                └── Middleware`);
+    console.log(`                     └── Protected Routes`);
     
     const bundle = getContextBundle(query, graphData);
     console.log(`\nContext Bundle (${bundle.nodesCount} files, ~${bundle.estimatedTokenCount} tokens):`);

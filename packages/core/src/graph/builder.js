@@ -26,16 +26,35 @@ class GraphBuilder {
 
     const files = this.collectFiles(this.targetDir);
     
-    // Step 1: Create File & Symbol Nodes
+    const cacheFile = path.join(this.targetDir, '.architectos', 'cache.json');
+    let cache = {};
+    if (fs.existsSync(cacheFile)) {
+      try { cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8')); } catch (e) {}
+    }
+    const newCache = {};
+
+    // Step 1: Create File & Symbol Nodes (Incremental Indexing)
     for (const relFile of files) {
       const fullPath = path.join(this.targetDir, relFile);
-      let content = '';
+      let stat = null;
       try {
-        if (fs.existsSync(fullPath)) content = fs.readFileSync(fullPath, 'utf-8');
+        if (fs.existsSync(fullPath)) stat = fs.statSync(fullPath);
       } catch (e) { continue; }
 
-      const domainTag = this.inferDomainTag(relFile);
+      if (!stat) continue;
       const nodeId = relFile.replace(/\\/g, '/');
+      const cachedEntry = cache[nodeId];
+
+      if (cachedEntry && cachedEntry.mtimeMs === stat.mtimeMs && cachedEntry.node) {
+        this.nodes.set(nodeId, cachedEntry.node);
+        newCache[nodeId] = cachedEntry;
+        continue;
+      }
+
+      let content = '';
+      try { content = fs.readFileSync(fullPath, 'utf-8'); } catch (e) { continue; }
+
+      const domainTag = this.inferDomainTag(relFile);
       const node = {
         id: nodeId,
         name: path.basename(relFile),
@@ -49,7 +68,14 @@ class GraphBuilder {
       };
 
       this.nodes.set(nodeId, node);
+      newCache[nodeId] = { mtimeMs: stat.mtimeMs, node };
     }
+
+    try {
+      const archDir = path.join(this.targetDir, '.architectos');
+      if (!fs.existsSync(archDir)) fs.mkdirSync(archDir, { recursive: true });
+      fs.writeFileSync(cacheFile, JSON.stringify(newCache, null, 2));
+    } catch (e) {}
 
     // Step 2: Extract Dependency Edges (Imports/Requires)
     for (const [nodeId, node] of this.nodes.entries()) {
@@ -185,26 +211,13 @@ class GraphBuilder {
     return symbols;
   }
 
-  extractImports(content, filePath) {
-    const imports = new Set();
+  extractImports(content, relFile) {
     try {
-      const importRegex = /(?:import\s+.*?from\s+['"]([^'"]+)['"]|require\(['"]([^'"]+)['"]\))/g;
-      let match;
-      while ((match = importRegex.exec(content)) !== null) {
-        const imp = match[1] || match[2];
-        if (imp && (imp.startsWith('.') || imp.startsWith('/'))) {
-          imports.add(imp);
-        }
-      }
-      const pyRegex = /(?:from\s+([^\s]+)\s+import|import\s+([^\s]+))/g;
-      while ((match = pyRegex.exec(content)) !== null) {
-        const pyImp = match[1] || match[2];
-        if (pyImp && pyImp.startsWith('.')) {
-          imports.add(pyImp);
-        }
-      }
-    } catch (e) {}
-    return Array.from(imports);
+      const PolyglotResolver = require('./polyglot');
+      return PolyglotResolver.extractImports(content, relFile);
+    } catch (e) {
+      return [];
+    }
   }
 
   resolveImport(sourceFile, importPath) {
