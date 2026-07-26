@@ -103,6 +103,18 @@ class McpServer {
             name: "architectos_check_guard",
             description: "Run fast (<35ms) Vibe-Coding pre-commit guard check to detect architectural regressions.",
             inputSchema: { type: "object", properties: {} }
+          },
+          {
+            name: "architectos_remember",
+            description: "Store persistent architectural rule or constraint for AI agents in repository memory.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                note: { type: "string", description: "Architectural rule or constraint note" },
+                category: { type: "string", description: "Category (e.g. architecture, security, naming)" }
+              },
+              required: ["note"]
+            }
           }
         ]
       });
@@ -176,6 +188,30 @@ class McpServer {
           statusMessage: passed ? "PASSED: Zero architectural regressions detected." : "BLOCKED: Architectural regression detected."
         };
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(guardStatus, null, 2) }] });
+      }
+
+      if (name === 'architectos_remember') {
+        const note = (args && args.note) || '';
+        const category = (args && args.category) || 'architecture';
+
+        if (!note) {
+          return this.sendError(id, -32602, "Missing required argument 'note'");
+        }
+
+        const { MemoryEngine } = coreModule;
+        const memoryEngine = new MemoryEngine(this.targetDir);
+        const entry = memoryEngine.remember(note, category);
+
+        return this.sendResult(id, {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              status: "success",
+              message: "Persistent architectural rule stored successfully.",
+              entry
+            }, null, 2)
+          }]
+        });
       }
 
       return this.sendError(id, -32601, `Unknown tool: ${name}`);

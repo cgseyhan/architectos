@@ -143,6 +143,18 @@ Last indexed: 2m ago
 
 ---
 
+### 5. `architectos remember "<rule>"` (Persistent AI Memory & Guardrails)
+```text
+🧠 ArchitectOS Repository Memory Engine
+
+✓ Saved persistent architectural rule:
+  "Client UI components cannot import Prisma directly"
+
+Rule active for Cursor, Claude Code, and Codex via MCP.
+```
+
+---
+
 ## ⚙️ Configuration (`architectos.config.json`)
 
 ```json
@@ -173,6 +185,7 @@ architectos status             # 5-second health score & AI readiness summary
 architectos review             # Signature repository review report with top problems & fix time
 architectos explain <topic>    # Architecture execution flow visualizer
 architectos analyze <file>     # Component responsibility, dependency & problem breakdown
+architectos remember "<rule>"  # Store persistent architectural rule for Cursor/Claude via MCP
 architectos watch              # Sleek sub-150ms live index watcher
 architectos mcp                # Native MCP server gateway for Cursor, Claude Code, and Codex
 ```

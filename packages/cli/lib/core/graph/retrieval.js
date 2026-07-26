@@ -60,15 +60,26 @@ function getContextBundle(query, graphData, tokenBudget = 4096) {
   const selectedIds = new Set(selectedNodes.map(n => n.id));
   const relevantEdges = edges.filter(e => selectedIds.has(e.source) || selectedIds.has(e.target));
 
+  // Retrieve persistent architectural memories
+  let memories = [];
+  try {
+    const MemoryEngine = require('../memory');
+    const memoryEngine = new MemoryEngine(process.cwd());
+    memories = memoryEngine.getMemories();
+  } catch (e) {}
+
   return {
     query,
     tokenBudget,
     estimatedTokenCount: estimatedTokens,
     nodesCount: selectedNodes.length,
     retrievalEngine: "BM25 + AST Graph Proximity (Hybrid)",
+    persistentMemoriesCount: memories.length,
+    architecturalRules: memories.map(m => m.note),
     contextBundle: {
       nodes: selectedNodes,
-      edges: relevantEdges
+      edges: relevantEdges,
+      memories
     }
   };
 }

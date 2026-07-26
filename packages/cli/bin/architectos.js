@@ -281,6 +281,40 @@ ${query.charAt(0).toUpperCase() + query.slice(1)} Flow:
     break;
   }
 
+  case 'remember': {
+    const note = args.slice(1).join(' ');
+    const memoryEngine = new MemoryEngine(targetDir);
+
+    if (!note) {
+      const memories = memoryEngine.getMemories();
+      if (jsonFlag) {
+        console.log(JSON.stringify({ memories }, null, 2));
+        break;
+      }
+      console.log(`\n🧠 ArchitectOS Repository Memory (${memories.length} rule(s) active):\n`);
+      if (memories.length === 0) {
+        console.log(' No persistent architectural rules stored yet.');
+        console.log(' Usage: architectos remember "<architectural rule note>"');
+      } else {
+        memories.forEach((m, i) => {
+          console.log(` ${i + 1}. [${m.category}] ${m.note}`);
+        });
+      }
+      break;
+    }
+
+    const entry = memoryEngine.remember(note);
+    if (jsonFlag) {
+      console.log(JSON.stringify({ status: "success", entry }, null, 2));
+    } else {
+      console.log(`\n🧠 ArchitectOS Repository Memory Engine\n`);
+      console.log(`✓ Saved persistent architectural rule:`);
+      console.log(`  "${note}"\n`);
+      console.log(`Rule active for Cursor, Claude Code, and Codex via MCP.`);
+    }
+    break;
+  }
+
   case 'trace': {
     const endpoint = args.slice(1).join(' ') || 'API Gateway';
     console.log(`🚀 [Engineering Copilot] Tracing Request Execution Flow for: "${endpoint}"`);
