@@ -38,6 +38,70 @@ AI Readiness     100/100
 
 ---
 
+## 🎬 Terminal Showcase: Senior Architect Review & Auto-Fix
+
+Watch ArchitectOS detect architectural boundary violations and refactor technical debt in seconds:
+
+```
+$ architectos review
+
+🛡️ [ArchitectOS Governance] Reviewing Architecture & Enforcing Constitutional Rules...
+
+================================================================================
+📊 ARCHITECTURAL CONSTITUTION REVIEW MATRIX
+================================================================================
+Overall Health Score: 38/100
+Architecture Score: 0/100 | Security Score: 40/100 | Maintainability: 99/100
+================================================================================
+
+❌ [FAIL] 1 Constitutional Violation(s) Detected:
+
+# Constitutional Violation Report #1
+Rule:        ui-infrastructure-boundary
+Severity:    🔴 High | Confidence: 100%
+
+Files Affected:
+  • apps/landing/app/dashboard/page.tsx
+  • apps/landing/app/dashboard/repository/document-repository.ts
+
+## 1. Why this violates the architecture
+Presentation Layer (UI) is directly accessing Infrastructure Layer (Database).
+
+## 2. Expected Architecture
+Expected Flow:  UI Component  ──►  Application Service  ──►  Infrastructure
+Current Flow:   UI Component  ───────(BYPASSED)───────►  Infrastructure  ❌
+
+## 4. Auto Fix & Architecture Impact
+Architecture Health Impact:
+  Before Fix:  38 / 100
+  After Fix:   98 / 100  (▲ +60 pts)
+
+Run: architectos fix ui-infrastructure-boundary
+```
+
+```
+$ architectos fix ui-infrastructure-boundary
+
+⚡ [ArchitectOS Auto-Fix] Running automated architectural refactoring engine...
+Targeting Rule: ui-infrastructure-boundary
+
+✓ Analyzing component AST boundaries...
+✓ Creating Application Service abstraction layer...
+✓ Decoupling Presentation Layer imports...
+✓ Re-indexing Architecture Knowledge Graph...
+
+================================================================================
+🎉 ARCHITECTURAL AUTO-FIX SUMMARY
+================================================================================
+Rule Fixed:          ui-infrastructure-boundary
+Architecture Health: 38/100 ──► 98/100 (▲ +60 pts)
+Technical Debt:      -1 Constitutional Violation Fixed
+Status:              ✅ [PASSED] Repository digital twin updated.
+================================================================================
+```
+
+---
+
 ## 📥 Installation
 
 Install globally or as a project dependency:
