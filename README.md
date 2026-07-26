@@ -211,7 +211,7 @@ architectos adr generate       # Automatically generate Architecture Decision Re
 
 ---
 
-## 🐕 Self-Hosted Architecture
+## 🏛️ Self-Hosted Architecture
 
 > **"ArchitectOS is built, governed, and quality-assured by ArchitectOS."**
 
