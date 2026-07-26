@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.29-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.30-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -22,7 +22,10 @@
 # Run instantly anywhere (Zero Installation)
 npx architectos init
 
-# View living repository health & AI readiness dashboard
+# Install ultra-fast (<35ms) Vibe-Coding Git Pre-Commit Shield
+npx architectos guard --install-hook
+
+# View living repository status & AI readiness dashboard
 npx architectos status
 ```
 
@@ -202,14 +205,35 @@ Refactor Safety   70% (Safe for AI-assisted refactoring)
 
 ---
 
-## 📥 Installation
+## 🛡️ Vibe-Coding Safeguard & Pre-Commit Shield
+
+In the era of AI-driven Vibe Coding (Cursor, Claude Code, Copilot), AI agents produce code at extreme velocity but often introduce hidden architectural debt, circular import loops, and direct UI-to-database layer breaches.
+
+ArchitectOS acts as the **steering wheel and safety system**:
 
 ```bash
-# Global CLI Installation
-npm i -g architectos
+# Install ultra-fast (<35ms) Vibe-Coding pre-commit shield
+architectos guard --install-hook
 
-# Or install as project developer dependency
-npm i -D architectos
+# Calculate weekly architecture drift velocity & AI refactor safety %
+architectos drift
+
+# Synchronize repository memory rules for AI agent sessions
+architectos memory-sync
+```
+
+```
+$ architectos guard
+🛡️ [ArchitectOS Guard] ✅ PASSED in 31ms! Zero architectural regressions detected.
+
+$ architectos drift
+📉 [ArchitectOS Drift Engine] Calculating Vibe-Coding Architecture Drift Velocity...
+
+Architecture Drift Velocity:  +1.2% / week
+Refactor Safety Rating:     80% (Safe for AI-assisted refactoring)
+God Component Risk:         0 component(s)
+Circular Import Loop Risk:  0 cycle(s)
+Dead Code Expansion:        2 file(s)
 ```
 
 ---
