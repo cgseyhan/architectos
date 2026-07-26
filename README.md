@@ -5,7 +5,7 @@
 ### ESLint for Architecture. MCP for AI. ArchitectOS for Repositories.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.24-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.25-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -69,6 +69,74 @@ Top Recommendations
 ────────────────────────────────────────────────────────────────
   ✓ Repository domain boundaries healthy & ready for AI agents.
 ```
+
+---
+
+## 🌟 Real-World Open-Source Benchmarks
+
+ArchitectOS analyzes real-world open-source repositories out of the box with zero configuration:
+
+<details>
+<summary><b>🐻 Zustand (pmndrs/zustand) — Overall Score: 87/100</b></summary>
+
+```
+📊 ArchitectOS Repository Status
+
+Project & Environment: pmndrs/zustand (55 files)
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     87/100 ✅ [Healthy]
+ ├── Architecture 80/100 -> Reason: Clean domain boundaries & DAG graph integrity
+ ├── Security     100/100 -> Reason: Zero SAST vulnerabilities & secrets detected
+ ├── Code Quality 93/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 64/100 -> Reason: Missing persistent memory rules or ADRs
+ ├── Testability  100/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 90/100 -> Reason: 14 Dead Code file(s) detected
+
+Repository Insights
+ ├── Largest Module        devtools.test.tsx (2,596 lines)
+ ├── Most Connected        vanilla.ts (7 dependencies)
+ ├── Circular Dependencies 0
+ └── Dead Code             14 file(s)
+
+🤖 AI System: Refactor Safety
+────────────────────────────────────────────────────────────────
+Refactor Safety   100% (Safe for AI-assisted refactoring)
+```
+
+</details>
+
+<details>
+<summary><b>🚀 Express.js (expressjs/express) — Overall Score: 87/100</b></summary>
+
+```
+📊 ArchitectOS Repository Status
+
+Project & Environment: expressjs/express (142 files)
+
+🔍 Analysis System: Quality Model & Score Reasons
+────────────────────────────────────────────────────────────────
+Overall Score     87/100 ✅ [Healthy]
+ ├── Architecture 80/100 -> Reason: Clean domain boundaries & DAG graph integrity
+ ├── Security     100/100 -> Reason: Zero SAST vulnerabilities & secrets detected
+ ├── Code Quality 93/100 -> Reason: Evaluated across AST complexity & file sizes
+ ├── AI Readiness 68/100 -> Reason: Missing persistent memory rules or ADRs
+ ├── Testability  100/100 -> Reason: Evaluated against valid assertion test files
+ └── Maintainable 85/100 -> Reason: 72 Dead Code file(s) detected
+
+Repository Insights
+ ├── Largest Module        app.router.js (1,218 lines)
+ ├── Most Connected        utils.js (10 dependencies)
+ ├── Circular Dependencies 0
+ └── Dead Code             72 file(s)
+
+🤖 AI System: Refactor Safety
+────────────────────────────────────────────────────────────────
+Refactor Safety   100% (Safe for AI-assisted refactoring)
+```
+
+</details>
 
 ---
 
