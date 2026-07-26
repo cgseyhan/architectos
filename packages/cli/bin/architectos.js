@@ -297,14 +297,40 @@ ${violationsCount === 0 && cyclesCount === 0
     const health = calculateHealth(graphData, targetDir);
 
     console.log(`================================================================================`);
-    console.log(`📊 ARCHITECTURAL CONSTITUTION REVIEW MATRIX`);
+    console.log(`📊 ARCHITECTURAL SYSTEM HEALTH & GOVERNANCE MATRIX`);
     console.log(`================================================================================`);
     console.log(`Overall Health Score: ${health.overallScore}/100`);
-    console.log(`Architecture Score: ${health.metrics.architecture}/100`);
-    console.log(`Security Score:     ${health.metrics.security}/100`);
-    console.log(`Maintainability:    ${health.metrics.maintainability}/100`);
-    console.log(`AI Readiness:       ${health.metrics.aiReadiness}/100`);
+    console.log(`Architecture Score: ${health.metrics.architecture}/100 | Security: ${health.metrics.security}/100 | Maintainability: ${health.metrics.maintainability}/100`);
+    console.log(`AI Readiness Score:  ${health.metrics.aiReadiness}/100 | Technical Debt: ${health.metrics.technicalDebt}/100`);
     console.log(`================================================================================\n`);
+
+    const violationsCount = graphData.violations.length;
+    const cyclesCount = graphData.stats.totalCycles || 0;
+
+    console.log(`📋 RECOMMENDED TASKS (Actionable Refactoring Checklist)`);
+    console.log(`────────────────────────────────────────────────────────────────────────────────`);
+    if (violationsCount > 0) {
+      console.log(`[HIGH PRIORITY]`);
+      console.log(`  □ Remove ${violationsCount} Presentation ──► Infrastructure direct import(s)`);
+    } else {
+      console.log(`  ✓ Domain Boundary Isolation healthy`);
+    }
+
+    if (cyclesCount > 0) {
+      console.log(`  □ Break ${cyclesCount} Circular Dependency Cycle(s)`);
+    } else {
+      console.log(`  ✓ Directed Acyclic Graph (DAG) maintained`);
+    }
+
+    if (health.metrics.aiReadiness < 90) {
+      console.log(`  □ Record Repository Memory rules (architectos remember)`);
+      console.log(`  □ Generate missing Architecture Decision Records (architectos adr generate)`);
+    } else {
+      console.log(`  ✓ AI Context Readiness optimal (${health.metrics.aiReadiness}/100)`);
+    }
+
+    console.log(`\nEstimated Health Impact: ${health.overallScore}/100 ──► 98/100 (▲ +${98 - health.overallScore} pts)`);
+    console.log(`Run 'architectos fix-plan' to generate LLM prompt roadmaps for Cursor / Claude / Codex!\n`);
 
     if (graphData.violations.length > 0) {
       console.error(`❌ [FAIL] ${graphData.violations.length} Constitutional Violation(s) Detected:\n`);
@@ -429,6 +455,59 @@ ${violationsCount === 0 && cyclesCount === 0
     console.error(`Architecture Health: 38/100 ──► 98/100 (▲ +60 pts)`);
     console.log(`Technical Debt:      -1 Constitutional Violation Fixed`);
     console.log(`Status:              ✅ [PASSED] Repository digital twin updated.`);
+    console.log(`================================================================================`);
+    break;
+  }
+
+  case 'fix-plan': {
+    console.log(`⚡ [ArchitectOS AI Refactoring Plan] Generating LLM Implementation Roadmaps...\n`);
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+    const health = calculateHealth(graphData, targetDir);
+
+    const outDir = path.join(targetDir, '.architectos', 'reports');
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+
+    const fixPlanFile = path.join(outDir, 'FIX-PLAN.md');
+    
+    let planMarkdown = `# ArchitectOS AI Refactoring Implementation Roadmap\n\n`;
+    planMarkdown += `> **Target:** Transform Architecture Health from ${health.overallScore}/100 ──► 98/100 (▲ +${98 - health.overallScore} pts)\n\n`;
+    planMarkdown += `## Actionable Implementation Prompts for AI Agents (Cursor / Claude Code / Codex)\n\n`;
+
+    if (graphData.violations.length > 0) {
+      planMarkdown += `### Task 1: Decouple Presentation Layer Direct Infrastructure Imports\n\n`;
+      planMarkdown += `**Prompt for AI Agent:**\n`;
+      planMarkdown += `\`\`\`text\nRefactorPresentationLayer: Create an Application Service abstraction layer in src/services/ApplicationService.ts. Update Presentation Layer components to consume Application Service methods instead of importing database/repository infrastructure modules directly.\n\`\`\`\n\n`;
+    }
+
+    if (graphData.stats.totalCycles > 0) {
+      planMarkdown += `### Task 2: Break Circular Dependency Cycles\n\n`;
+      planMarkdown += `**Prompt for AI Agent:**\n`;
+      planMarkdown += `\`\`\`text\nDecoupleCircularDependencies: Extract shared domain interfaces, DTOs, and types into a dedicated domain/types module to resolve cyclic import loops.\n\`\`\`\n\n`;
+    }
+
+    if (health.metrics.aiReadiness < 90) {
+      planMarkdown += `### Task 3: Establish Repository Memory & ADR Coverage\n\n`;
+      planMarkdown += `**Prompt for AI Agent:**\n`;
+      planMarkdown += `\`\`\`text\nPersistRepositoryMemory: Record persistent architectural boundary constraints using 'architectos remember' and generate baseline Architecture Decision Records (ADRs) for core subsystems.\n\`\`\`\n\n`;
+    }
+
+    fs.writeFileSync(fixPlanFile, planMarkdown);
+
+    console.log(`✓ Generated AI Refactoring Implementation Roadmap`);
+    console.log(`  File Saved: .architectos/reports/FIX-PLAN.md\n`);
+    console.log(`================================================================================`);
+    console.log(`🤖 LLM PROMPT ROADMAP FOR AI AGENTS (Cursor / Claude Code / Codex)`);
+    console.log(`================================================================================\n`);
+    console.log(`Prompt #1 [Refactor Presentation Layer]:`);
+    console.log(`  "Create an Application Service abstraction layer and update Presentation Layer imports."\n`);
+    console.log(`Prompt #2 [Decouple Circular Imports]:`);
+    console.log(`  "Extract shared domain interfaces/types into a dedicated domain/types module."\n`);
+    console.log(`Prompt #3 [Persist Architecture Memory]:`);
+    console.log(`  "Record persistent architectural rules with 'architectos remember' and generate ADRs."\n`);
+    console.log(`================================================================================`);
+    console.log(`Expected Health Impact: ${health.overallScore}/100 ──► 98/100 (▲ +${98 - health.overallScore} pts)`);
     console.log(`================================================================================`);
     break;
   }
