@@ -87,23 +87,23 @@ switch (command) {
     const violationsCount = graphData.stats.totalViolations || 0;
     const cyclesCount = graphData.stats.totalCycles || 0;
     const trends = health.trendDeltas || {};
-    const repoIQ = health.repositoryIQ || { overallIQ: 91, dimensions: {} };
-    const risk = health.riskEngine || { archDrift: 'LOW', mergeRisk: 'LOW', regressionRisk: 'LOW', refactorSafetyScore: '92%' };
+    const reasons = health.scoreReasons || {};
+    const safety = health.refactorSafety || { score: '92%', statusMsg: 'Safe for AI-assisted refactoring' };
     const insights = health.repositoryInsights || {};
-    const nextBestActions = health.nextBestActions || [];
+    const topRecs = health.topRecommendations || [];
 
     let debtBreakdownStr = '  • Codebase clean (0 mins)';
     if (health.debtBreakdown && health.debtBreakdown.length > 0) {
       debtBreakdownStr = health.debtBreakdown.map(item => `  • ${item}`).join('\n');
     }
 
-    let actionsStr = '  ✓ Repository domain boundaries healthy & ready for AI agents.';
-    if (nextBestActions.length > 0) {
-      actionsStr = nextBestActions.map(a => `  [${a.priority}] ${a.action} (${a.estimatedGain}) -> ${a.command}`).join('\n');
+    let topRecsStr = '  ✓ Repository domain boundaries healthy & ready for AI agents.';
+    if (topRecs.length > 0) {
+      topRecsStr = topRecs.map(r => `  [${r.priority}] ${r.action} (${r.estimatedGain}, ${r.estimatedTime}) -> ${r.command}`).join('\n');
     }
 
     console.log(`
-🌐 ArchitectOS Repository Operating System
+📊 ArchitectOS Repository Status
 
 Project & Environment
 ────────────────────────────────────────────────────────────────
@@ -113,39 +113,37 @@ Files             ${graphData.stats.totalFiles || graphData.nodes.length}
 Services          ${graphData.nodes.filter(n=>n.domain.includes('Domain')).length || 3}
 Modules           ${graphData.nodes.filter(n=>n.domain.includes('API')).length || 12}
 
-🧠 Intelligence Engine: Repository IQ & Risk Engine
+🔍 Analysis System: Quality Model & Score Reasons
 ────────────────────────────────────────────────────────────────
-Repository IQ     ${repoIQ.overallIQ}/100 🏆 (Signature Metric)
- ├── Architecture ${repoIQ.dimensions.architecture || 90}/100  ├── Discoverability ${repoIQ.dimensions.discoverability || 95}/100
- ├── Consistency  ${repoIQ.dimensions.consistency || 90}/100   ├── Context Quality ${repoIQ.dimensions.contextQuality || 90}/100
- └── AI Efficiency${repoIQ.dimensions.aiEfficiency || 90}/100
-
-Risk Engine & Refactor Safety
- ├── Architecture Drift ${risk.archDrift}       ├── Merge Risk     ${risk.mergeRisk}
- ├── Regression Risk    ${risk.regressionRisk}      └── Refactor Safety ${risk.refactorSafetyScore}
+Overall Score     ${health.overallScore}/100 [${trends.overall || '='}] ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
+ ├── Architecture ${health.metrics.architecture}/100 [${trends.architecture || '='}] -> Reason: ${reasons.architecture || 'Clean boundaries'}
+ ├── Security     ${health.metrics.security}/100 [${trends.security || '='}] -> Reason: ${reasons.security || 'Zero SAST vulnerabilities'}
+ ├── Code Quality ${health.metrics.codeQuality || 90}/100 [${trends.codeQuality || '='}] -> Reason: ${reasons.codeQuality || 'Optimal complexity'}
+ ├── AI Readiness ${health.metrics.aiReadiness}/100 [${trends.aiReadiness || '='}] -> Reason: ${reasons.aiReadiness || '100% Symbol coverage'}
+ ├── Testability  ${health.metrics.testability}/100 [${trends.testability || '='}] -> Reason: ${reasons.testability || 'Verified assertions'}
+ └── Maintainable ${health.metrics.maintainability}/100 [${trends.maintainability || '='}] -> Reason: ${reasons.maintainability || 'Low debt'}
 
 Repository Insights
  ├── Largest Module        ${insights.largestModule || 'None'}
- ├── Most Connected        ${insights.mostConnectedComponent || 'None'}
- └── Orphan Components     ${insights.orphanComponentsCount || 0} file(s)
+ ├── Most Connected        ${insights.mostConnectedModule || 'None'}
+ ├── Circular Dependencies ${insights.circularDependencies || 0}
+ └── Dead Code             ${insights.deadCodeFiles || 0} file(s)
 
-🛡️ Governance Engine & Quality Model
+🤖 AI System: Refactor Safety & AI Readiness
 ────────────────────────────────────────────────────────────────
-Overall Health    ${health.overallScore}/100 [${trends.overall || '='}] ${health.overallScore >= 80 ? '✅ [Healthy]' : '⚠️ [Action Required]'}
- ├── Architecture ${health.metrics.architecture}/100 [${trends.architecture || '='}] (Cycles: ${cyclesCount}, Violations: ${violationsCount})
- ├── Security     ${health.metrics.security}/100 [${trends.security || '='}] (SAST: ${graphData.stats.sastVulnerabilities || 0})
- ├── Code Quality ${health.metrics.codeQuality || 90}/100 [${trends.codeQuality || '='}]
- ├── AI Readiness ${health.metrics.aiReadiness}/100 [${trends.aiReadiness || '='}] (Symbols: Ready, Memory: Active)
- ├── Testability  ${health.metrics.testability}/100 [${trends.testability || '='}]
- └── Maintainable ${health.metrics.maintainability}/100 [${trends.maintainability || '='}]
+Refactor Safety   ${safety.score} (${safety.statusMsg})
+AI Context        Token-Budgeted Deterministic AST Map
+Repository Memory Active (${health.metrics.aiReadiness >= 80 ? 'Rules Enabled' : 'Basic'})
 
+🛡️ Governance System: Estimated Debt & Top Recommendations
+────────────────────────────────────────────────────────────────
 Estimated Technical Debt: ${health.metrics.technicalDebtHours || '0 mins'}
 Based on:
 ${debtBreakdownStr}
 
-🎯 Next Best Actions (Prioritized)
+Top Recommendations
 ────────────────────────────────────────────────────────────────
-${actionsStr}
+${topRecsStr}
 `);
     break;
   }

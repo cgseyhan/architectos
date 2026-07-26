@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const HistoryEngine = require('./history');
-const IntelligenceEngine = require('./intelligence');
+const RepositoryAnalysisEngine = require('./analysis');
 
 /**
  * Format developer remediation time (in minutes) into human-readable hours/minutes
@@ -257,12 +257,12 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
 
   result.trendDeltas = trendDeltas;
 
-  // Compute Intelligence Engine Metrics
-  const intelEngine = new IntelligenceEngine(graphData, result, targetDir);
-  result.repositoryIQ = intelEngine.calculateRepositoryIQ();
-  result.riskEngine = intelEngine.calculateRiskEngine();
-  result.repositoryInsights = intelEngine.getRepositoryInsights();
-  result.nextBestActions = intelEngine.getPrioritizedNextBestActions();
+  // Compute Analysis System Metrics
+  const analysisEngine = new RepositoryAnalysisEngine(graphData, result, targetDir);
+  result.scoreReasons = analysisEngine.getScoreReasons();
+  result.refactorSafety = analysisEngine.getRefactorSafety();
+  result.repositoryInsights = analysisEngine.getRepositoryInsights();
+  result.topRecommendations = analysisEngine.getTopRecommendations();
 
   return result;
 }
