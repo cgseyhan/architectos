@@ -103,6 +103,14 @@ class McpServer {
             inputSchema: { type: "object", properties: {} }
           },
           {
+            name: "architectos_layout",
+            description: "Audit UI component hierarchy, portal/overlay placement, and layout boundaries.",
+            inputSchema: {
+              type: "object",
+              properties: { target: { type: "string", description: "Target UI component or file" } }
+            }
+          },
+          {
             name: "architectos_remember",
             description: "Store persistent architectural rule or constraint for AI agents in repository memory.",
             inputSchema: {
@@ -162,6 +170,13 @@ class McpServer {
       if (name === 'architectos_dead') {
         const { detectZombieExports } = coreModule;
         const result = detectZombieExports(graphData);
+        return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
+      }
+
+      if (name === 'architectos_layout') {
+        const target = (args && args.target) || 'ShareDocumentDialog.tsx';
+        const { scanUiLayout } = coreModule;
+        const result = scanUiLayout(target, graphData);
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
       }
 

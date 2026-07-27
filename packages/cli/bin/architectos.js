@@ -409,6 +409,38 @@ Estimated effort: 45 min
     break;
   }
 
+  case 'layout':
+  case 'ui': {
+    const targetPath = args.slice(1).join(' ') || 'ShareDocumentDialog.tsx';
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const { scanUiLayout } = require('../lib/core/ui/layoutScanner');
+    const res = scanUiLayout(targetPath, graphData);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    console.log(`\n📐 ArchitectOS UI Layout & Component Hierarchy Audit\n`);
+    console.log(`Target: ${res.target}\n`);
+    console.log(`Component Placement Audit:`);
+    res.issues.forEach(iss => {
+      console.log(` ❌ ${iss.problem}`);
+      console.log(`    Why it matters: ${iss.whyItMatters}`);
+      console.log(`    Suggested placement: ${iss.suggestedPlacement}\n`);
+    });
+    console.log(`UI Hierarchy Health: ${res.healthScore}/100`);
+    console.log(` ├── Shell Isolation:    ${res.metrics.shellIsolation}/100`);
+    console.log(` ├── Portal & Overlay:   ${res.metrics.portalOverlay}/100`);
+    console.log(` └── Layout Decomposition: ${res.metrics.layoutDecomposition}/100\n`);
+    console.log(`Next step:`);
+    console.log(` Run: architectos plan ${res.target}\n`);
+    break;
+  }
+
   case 'ask': {
     const query = args.slice(1).join(' ') || 'Where is tenant isolation enforced?';
     if (jsonFlag) {

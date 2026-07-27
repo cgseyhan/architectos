@@ -18,6 +18,7 @@ const { getContextBundle } = require('./graph/retrieval');
 const { explainWhy } = require('./graph/why');
 const { detectZombieExports } = require('./graph/zombie');
 const { resolveSymbol } = require('./graph/resolve');
+const { scanUiLayout } = require('./ui/layoutScanner');
 const MemoryEngine = require('./memory');
 const AdrEngine = require('./adr');
 const { calculateDiff } = require('./diff');
@@ -181,6 +182,7 @@ module.exports = {
   explainWhy,
   detectZombieExports,
   resolveSymbol,
+  scanUiLayout,
   MemoryEngine,
   AdrEngine,
   calculateDiff,
