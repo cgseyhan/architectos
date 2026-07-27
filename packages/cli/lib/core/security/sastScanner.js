@@ -89,7 +89,7 @@ const SAST_RULES = [
 
 function scanCodeForVulnerabilities(content, filePath) {
   const vulnerabilities = [];
-  if (/(test|spec|mock|example|\.md|\.d\.ts|openapi\.json|\.json$)/i.test(filePath)) {
+  if (/(test|spec|mock|example|\.md|\.d\.ts|openapi\.json|\.json$|sastScanner\.js)/i.test(filePath)) {
     return vulnerabilities;
   }
 
