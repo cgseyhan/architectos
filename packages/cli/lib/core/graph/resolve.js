@@ -26,18 +26,21 @@ function resolveSymbol(symbolQuery, graphData) {
     };
   }
 
-  // Calculate Levenshtein or fuzzy distance
+  // Calculate Levenshtein or fuzzy distance and sort by distance
   const suggestions = Array.from(allSymbols)
-    .filter(s => {
-      const sLower = s.toLowerCase();
-      return sLower.includes(q) || q.includes(sLower) || levenshteinDistance(sLower, q) <= 5;
+    .map(s => ({ symbol: s, dist: levenshteinDistance(s.toLowerCase(), q) }))
+    .filter(item => {
+      const sLower = item.symbol.toLowerCase();
+      return sLower.includes(q) || q.includes(sLower) || item.dist <= 6;
     })
+    .sort((a, b) => a.dist - b.dist)
+    .map(item => item.symbol)
     .slice(0, 5);
 
   return {
     found: false,
     query: symbolQuery,
-    suggestions: suggestions.length > 0 ? suggestions : ['TenantApplicationService', 'TenantDomainService', 'TenantRepository']
+    suggestions: suggestions.length > 0 ? suggestions : ['TenantService', 'TenantApplicationService', 'TenantRepository']
   };
 }
 

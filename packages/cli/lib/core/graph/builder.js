@@ -220,15 +220,60 @@ class GraphBuilder {
     }
   }
 
+  loadPathAliases() {
+    if (this.pathAliases) return this.pathAliases;
+    this.pathAliases = [];
+    const tsconfigPath = path.join(this.targetDir, 'tsconfig.json');
+    const jsconfigPath = path.join(this.targetDir, 'jsconfig.json');
+    const targetFile = fs.existsSync(tsconfigPath) ? tsconfigPath : (fs.existsSync(jsconfigPath) ? jsconfigPath : null);
+
+    if (targetFile) {
+      try {
+        const raw = fs.readFileSync(targetFile, 'utf-8');
+        // Strip JSON comments
+        const clean = raw.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+        const json = JSON.parse(clean);
+        const paths = (json.compilerOptions && json.compilerOptions.paths) || {};
+        for (const aliasPattern of Object.keys(paths)) {
+          const aliasPrefix = aliasPattern.replace(/\*$/, '');
+          const targets = paths[aliasPattern] || [];
+          if (targets.length > 0) {
+            const targetPrefix = targets[0].replace(/\*$/, '');
+            this.pathAliases.push({ aliasPrefix, targetPrefix });
+          }
+        }
+      } catch (e) {}
+    }
+    return this.pathAliases;
+  }
+
   resolveImport(sourceFile, importPath) {
+    let resolvedImport = importPath;
+    const aliases = this.loadPathAliases();
+
+    for (const { aliasPrefix, targetPrefix } of aliases) {
+      if (importPath.startsWith(aliasPrefix)) {
+        resolvedImport = importPath.replace(aliasPrefix, targetPrefix);
+        break;
+      }
+    }
+
+    // Default alias fallback: '@/' -> 'src/' or 'app/'
+    if (importPath.startsWith('@/') || importPath.startsWith('~/')) {
+      resolvedImport = importPath.replace(/^[@~]\//, 'src/');
+    }
+
     const sourceDir = path.dirname(path.join(this.targetDir, sourceFile));
-    const targetAbs = path.resolve(sourceDir, importPath);
+    const targetAbs = path.isAbsolute(resolvedImport) ? resolvedImport : path.resolve(sourceDir, resolvedImport);
     const relTarget = path.relative(this.targetDir, targetAbs).replace(/\\/g, '/');
 
     const extensions = ['', '.ts', '.tsx', '.js', '.jsx', '.json', '/index.ts', '/index.js'];
     for (const ext of extensions) {
       const cand = relTarget + ext;
       if (this.nodes.has(cand)) return cand;
+      // Direct relative match
+      const rawCand = resolvedImport.replace(/\\/g, '/') + ext;
+      if (this.nodes.has(rawCand)) return rawCand;
     }
     return null;
   }

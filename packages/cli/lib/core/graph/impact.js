@@ -10,7 +10,10 @@ function analyzeImpact(target, graphData) {
   const transitiveDependents = new Set();
   const affectedSubsystems = new Set();
 
+  const isVendor = (str) => /node_modules|react|next|axios|zod|express|fastify|lodash/i.test(str);
+
   for (const edge of edges) {
+    if (isVendor(edge.source) || isVendor(edge.target)) continue;
     if (edge.target.toLowerCase().includes(normTarget) || edge.source.toLowerCase().includes(normTarget)) {
       directDependents.push(edge.source);
       transitiveDependents.add(edge.source);
