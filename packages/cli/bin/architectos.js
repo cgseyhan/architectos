@@ -228,17 +228,19 @@ Overall Health: ${health.overallScore}/100
  ├── AI Readiness:    ${health.metrics.aiReadiness}/100${health.metrics.uiArchitecture !== null ? `\n └── UI Architecture: ${health.metrics.uiArchitecture}/100` : ''}
 
 Top Problems:
-
- 1. WorkspaceService bypasses Application Layer
-    Estimated Fix: 20 min
-    Why it matters: Violates domain boundary constraints
-    Suggested fix: Route requests through ApplicationFacade
-
- 2. Toolbar.tsx is an Oversized / God Component
-    Estimated Fix: 45 min
-    Why it matters: 350+ lines, multi-responsibility coupling
-    Suggested fix: Split into ToolbarUI and ToolbarActions
 `);
+
+    const topRecs = health.topRecommendations || [];
+    if (topRecs.length === 0) {
+      console.log(` ✓ Zero critical architecture or security problems detected! Repository is in clean compliance.\n`);
+    } else {
+      topRecs.forEach((rec, idx) => {
+        console.log(` ${idx + 1}. ${rec.action}`);
+        console.log(`    Estimated Fix: ${rec.estimatedTime}`);
+        console.log(`    Expected Gain: ${rec.estimatedGain}`);
+        console.log(`    Suggested command: ${rec.command}\n`);
+      });
+    }
     break;
   }
 
