@@ -2,10 +2,10 @@ const path = require('path');
 
 /**
  * ArchitectOS UI Architecture Engine (Framework-Agnostic)
- * Dynamically audits AST JSX/TSX nodes for:
+ * Surgically audits UI components (.tsx, .jsx, .vue, .svelte) for:
  * 1. Next.js 'use client' Boundary Leaks
  * 2. Component Composition & Overlay Placement
- * 3. Prop Drilling Depth
+ * 3. Oversized UI Component Decomposition (>400 LOC)
  */
 function analyzeUiArchitecture(targetPath, graphData, options = {}) {
   const { nodes, edges } = graphData || { nodes: [], edges: [] };
@@ -23,8 +23,19 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
   const propDrillingList = [];
   const fatContexts = [];
 
-  // 1. Dynamic 'use client' Leak Detection
-  const pageNodes = nodes.filter(n => /(page|layout)\.(tsx|jsx|js|ts)$/i.test(n.name));
+  // Helper: Filter strict UI component files (.tsx, .jsx, .vue, .svelte)
+  const isUiFile = (nodePath) => {
+    const p = nodePath.toLowerCase();
+    // Exclude non-UI extensions, tests, generated files, and data files
+    if (/(json|py|go|rs|md|\.gen\.ts|\.d\.ts|package-lock|test|spec|conftest|fixture)/i.test(p)) return false;
+    return /\.(tsx|jsx|vue|svelte)$/i.test(p);
+  };
+
+  // Filter UI nodes only
+  const uiNodes = nodes.filter(n => isUiFile(n.path));
+
+  // 1. Dynamic 'use client' Leak Detection in App Router Routes
+  const pageNodes = uiNodes.filter(n => /(page|layout)\.(tsx|jsx)$/i.test(n.name));
   for (const pNode of pageNodes) {
     if (pNode.symbols && pNode.symbols.some(s => (typeof s === 'string' ? s : s.name) === 'use client')) {
       useClientLeaks.push({
@@ -41,34 +52,26 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
     }
   }
 
-  // 2. Dynamic Oversized / Fat Context Component Detection
-  const contextNodes = nodes.filter(n => /context\.(tsx|jsx|js|ts)$/i.test(n.name) || n.lines > 400);
-  for (const cNode of contextNodes) {
-    if (cNode.lines > 300) {
-      fatContexts.push({
-        name: cNode.name,
-        stateCount: Math.round(cNode.lines / 15),
-        consumingComponentsCount: edges.filter(e => e.target === cNode.id).length,
-        whyItMatters: `Oversized component (${cNode.lines} lines) triggers frequent re-renders.`,
-        recommendation: `Split ${cNode.name} into focused sub-components.`
-      });
-      issues.push({
-        title: `⚠️ Oversized Component: ${cNode.name} (${cNode.lines} LOC)`,
-        file: cNode.path,
-        description: `${cNode.name} has ${cNode.lines} lines across multiple mixed responsibilities.`,
-        recommendation: `Split ${cNode.name} into dedicated UI and state sub-components.`
-      });
-    }
-  }
+  // 2. Dynamic Oversized UI Component Detection (>400 LOC)
+  const oversizedUiNodes = uiNodes
+    .filter(n => n.lines > 400)
+    .sort((a, b) => b.lines - a.lines)
+    .slice(0, 5); // Limit to top 5 critical components
 
-  // 3. Fallback issues if repository has 0 detected UI anti-patterns
-  if (issues.length === 0) {
-    goodPractices = [
-      "✓ Root Provider configured in layout.tsx",
-      "✓ Layout Shell isolation active",
-      "✓ Route Segmentation cleanly decoupled",
-      "✓ Component Isolation maintained"
-    ];
+  for (const cNode of oversizedUiNodes) {
+    fatContexts.push({
+      name: cNode.name,
+      stateCount: Math.round(cNode.lines / 15),
+      consumingComponentsCount: edges.filter(e => e.target === cNode.id).length,
+      whyItMatters: `Oversized UI component (${cNode.lines} lines) triggers frequent re-renders.`,
+      recommendation: `Split ${cNode.name} into dedicated UI and state sub-components.`
+    });
+    issues.push({
+      title: `⚠️ Oversized UI Component: ${cNode.name} (${cNode.lines} LOC)`,
+      file: cNode.path,
+      description: `${cNode.name} has ${cNode.lines} lines across multiple mixed responsibilities.`,
+      recommendation: `Split ${cNode.name} into dedicated UI view and state sub-components.`
+    });
   }
 
   const goodPractices = [
