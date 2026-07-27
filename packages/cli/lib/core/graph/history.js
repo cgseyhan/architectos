@@ -74,6 +74,12 @@ class HistoryEngine {
       aiReadiness: calcDelta(currentMetrics.metrics.aiReadiness, prevMetrics.aiReadiness)
     };
   }
+
+  getHistoryRecords(days = 30) {
+    const history = this.loadHistory();
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    return history.filter(h => new Date(h.timestamp) >= cutoff);
+  }
 }
 
 module.exports = HistoryEngine;

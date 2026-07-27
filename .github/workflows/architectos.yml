@@ -1,14 +1,14 @@
-name: ArchitectOS Governance & Regression Shield
+name: ArchitectOS Governance Check
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
-  audit:
-    name: Architecture & Health Audit
+  architectos-review:
+    name: ArchitectOS Repository Review
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +20,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install ArchitectOS
-        run: npm install -g architectos
-
-      - name: Run ArchitectOS Review
-        run: npx architectos review
-
-      - name: Run ArchitectOS Impact Shield
-        run: npx architectos impact .
+      - name: Run ArchitectOS Health Review
+        run: |
+          npx -y architectos review --threshold 80

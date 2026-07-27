@@ -213,8 +213,14 @@ Last indexed: Just now
     const graphData = builder.scan();
     const health = calculateHealth(graphData, targetDir);
 
+    const thresholdIdx = args.indexOf('--threshold');
+    const threshold = thresholdIdx !== -1 ? parseInt(args[thresholdIdx + 1], 10) : null;
+
     if (jsonFlag) {
       console.log(JSON.stringify({ health, stats: graphData.stats }, null, 2));
+      if (threshold !== null && !isNaN(threshold) && health.overallScore < threshold) {
+        process.exit(1);
+      }
       break;
     }
 
@@ -242,6 +248,15 @@ Top Problems:
         console.log(`    Suggested command: ${rec.command}\n`);
       });
     }
+
+    if (threshold !== null && !isNaN(threshold)) {
+      if (health.overallScore < threshold) {
+        console.error(`❌ ArchitectOS CI Check Failed: Overall Health (${health.overallScore}/100) is below required threshold (${threshold}/100).\n`);
+        process.exit(1);
+      } else {
+        console.log(`✓ ArchitectOS CI Check Passed: Health (${health.overallScore}/100) meets threshold (${threshold}/100).\n`);
+      }
+    }
     break;
   }
 
@@ -249,12 +264,48 @@ Top Problems:
     const isWhyFlag = args.includes('--why');
     const isUiFlag = args.includes('--ui');
     const isDeadFlag = args.includes('--dead');
+    const isDuplicationFlag = args.includes('--duplication');
+    const isTaintFlag = args.includes('--taint');
     const filteredArgs = args.filter(a => !a.startsWith('--') && a !== 'analyze');
     const targetFile = filteredArgs[0] || 'toolbar.tsx';
 
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
+
+    if (isTaintFlag) {
+      const { analyzeTaint } = require('../lib/core/security/taintEngine');
+      const res = analyzeTaint(targetFile, graphData, targetDir);
+      console.log(`\n🔴 ArchitectOS Taint Analysis Report\n`);
+      console.log(`Target: ${res.target}`);
+      console.log(`Taint Paths Detected: ${res.detectedPathsCount}\n`);
+      if (res.taintPaths.length === 0) {
+        console.log(` ✓ Zero un-sanitized source-to-sink data flow paths detected.\n`);
+      } else {
+        res.taintPaths.forEach((tp, idx) => {
+          console.log(` ${idx + 1}. [${tp.category}] ${tp.source} (${tp.sourceFile}:L${tp.sourceLine}) ──► ${tp.sinkName} (${tp.sinkFile}:L${tp.sinkLine})`);
+          console.log(`    Recommendation: ${tp.recommendation}\n`);
+        });
+      }
+      break;
+    }
+
+    if (isDuplicationFlag) {
+      const { scanDuplication } = require('../lib/core/quality/duplicationScanner');
+      const res = scanDuplication(graphData, targetDir);
+      console.log(`\n📋 Code Duplication Report\n`);
+      console.log(`Scanned files: ${res.totalFilesScanned}`);
+      console.log(`Duplication Ratio: ${res.duplicationRatio}\n`);
+      if (res.duplicates.length === 0) {
+        console.log(` ✓ Zero duplicated code blocks detected! Repository code is clean and modular.\n`);
+      } else {
+        res.duplicates.forEach((d, idx) => {
+          console.log(` ${idx + 1}. ${d.similarity}% similar: ${d.fileA}  ≈  ${d.fileB}`);
+          console.log(`    Suggestion: ${d.suggestion}\n`);
+        });
+      }
+      break;
+    }
 
     if (isWhyFlag) {
       const { explainWhy } = require('../lib/core/graph/why');
@@ -456,6 +507,29 @@ Estimated effort: 45 min
         console.log(` Unused for: ${u.daysUnused} days`);
         console.log(` Safe to remove: ${u.safeToRemove ? 'YES' : 'NO'}\n`);
       });
+    }
+    break;
+  }
+
+  case 'history': {
+    const HistoryEngine = require('../lib/core/graph/history');
+    const historyEngine = new HistoryEngine(targetDir);
+    const records = historyEngine.getHistoryRecords(30);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(records, null, 2));
+      break;
+    }
+
+    console.log(`\n📈 ArchitectOS Score History (Last 30 Days)\n`);
+    if (records.length === 0) {
+      console.log(` No historical snapshots found yet. Run "architectos review" to record your first snapshot!\n`);
+    } else {
+      records.reverse().forEach(r => {
+        const dateStr = new Date(r.timestamp).toISOString().split('T')[0];
+        console.log(` ${dateStr}  Overall: ${r.overallScore}/100  (Arch: ${r.metrics?.architecture || '-'}, Sec: ${r.metrics?.security || '-'}, Qual: ${r.metrics?.codeQuality || '-'})`);
+      });
+      console.log(`\nTotal snapshots recorded: ${records.length}\n`);
     }
     break;
   }
