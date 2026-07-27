@@ -74,14 +74,24 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
   // --- CATEGORY 2: Security Score (20% Weight) ---
   const hardcodedSecrets = nodes.filter(n => {
     const name = n.name.toLowerCase();
-    if (/(test|spec|example|demo|mock|\.md|\.d\.ts)$/.test(name)) return false;
-    const isSecretFile = /(\.env|\.pem|\.key|id_rsa|credentials|service_account)/.test(name);
+    const p = n.path.toLowerCase();
+    if (/(test|spec|example|demo|mock|fixture|\.md|\.d\.ts)/.test(name) || /(test|spec|example|demo|mock|fixture)/.test(p)) return false;
+    const isSecretFile = /(\.env(?!\.example)|\.pem|\.key|id_rsa|credentials|service_account)/.test(name);
     const isSecretName = /(db_password|jwt_secret|api_key_secret|aws_secret|master_key)/.test(name);
     return isSecretFile || isSecretName;
   }).length;
 
-  const totalSastVulnerabilities = nodes.reduce((sum, n) => sum + (n.vulnerabilities ? n.vulnerabilities.length : 0), 0);
+  const totalSastVulnerabilities = nodes.reduce((sum, n) => {
+    const name = n.name.toLowerCase();
+    const p = n.path.toLowerCase();
+    if (/(test|spec|example|demo|mock|fixture|\.md|\.d\.ts)/.test(name) || /(test|spec|example|demo|mock|fixture)/.test(p)) return sum;
+    return sum + (n.vulnerabilities ? n.vulnerabilities.length : 0);
+  }, 0);
+
   const criticalSastCount = nodes.reduce((sum, n) => {
+    const name = n.name.toLowerCase();
+    const p = n.path.toLowerCase();
+    if (/(test|spec|example|demo|mock|fixture|\.md|\.d\.ts)/.test(name) || /(test|spec|example|demo|mock|fixture)/.test(p)) return sum;
     if (!n.vulnerabilities) return sum;
     return sum + n.vulnerabilities.filter(v => v.severity === 'CRITICAL' || v.severity === 'HIGH').length;
   }, 0);

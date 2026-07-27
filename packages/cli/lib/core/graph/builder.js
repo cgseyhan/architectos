@@ -87,14 +87,17 @@ class GraphBuilder {
 
       const importedPaths = this.extractImports(content, node.path);
 
-      for (const targetPath of importedPaths) {
-        const resolvedTarget = this.resolveImport(node.path, targetPath);
+      for (const item of importedPaths) {
+        const importStr = typeof item === 'string' ? item : item.path;
+        const importKind = typeof item === 'string' ? 'RUNTIME' : (item.kind || 'RUNTIME');
+        const resolvedTarget = this.resolveImport(node.path, importStr);
         if (resolvedTarget && this.nodes.has(resolvedTarget)) {
           this.edges.push({
             id: `${nodeId}->${resolvedTarget}`,
             source: nodeId,
             target: resolvedTarget,
-            type: EdgeType.IMPORTS
+            type: EdgeType.IMPORTS,
+            kind: importKind
           });
         }
       }
@@ -280,35 +283,53 @@ class GraphBuilder {
 
   detectCycles() {
     const cycles = [];
-    const visited = new Set();
-    const stack = new Set();
-    const adj = new Map();
+    const indexMap = new Map();
+    const lowLinkMap = new Map();
+    const onStack = new Set();
+    const stack = [];
+    let index = 0;
 
+    const adj = new Map();
     for (const edge of this.edges) {
       if (!adj.has(edge.source)) adj.set(edge.source, []);
       adj.get(edge.source).push(edge.target);
     }
 
-    const dfs = (curr, pathArr) => {
-      visited.add(curr);
-      stack.add(curr);
-      pathArr.push(curr);
+    const strongConnect = (v) => {
+      indexMap.set(v, index);
+      lowLinkMap.set(v, index);
+      index++;
+      stack.push(v);
+      onStack.add(v);
 
-      const neighbors = adj.get(curr) || [];
-      for (const nxt of neighbors) {
-        if (!visited.has(nxt)) {
-          dfs(nxt, [...pathArr]);
-        } else if (stack.has(nxt)) {
-          const cyclePath = pathArr.slice(pathArr.indexOf(nxt));
-          cycles.push(cyclePath);
+      const neighbors = adj.get(v) || [];
+      for (const w of neighbors) {
+        if (!indexMap.has(w)) {
+          strongConnect(w);
+          lowLinkMap.set(v, Math.min(lowLinkMap.get(v), lowLinkMap.get(w)));
+        } else if (onStack.has(w)) {
+          lowLinkMap.set(v, Math.min(lowLinkMap.get(v), indexMap.get(w)));
         }
       }
-      stack.delete(curr);
+
+      if (lowLinkMap.get(v) === indexMap.get(v)) {
+        const scc = [];
+        let w;
+        do {
+          w = stack.pop();
+          onStack.delete(w);
+          scc.push(w);
+        } while (w !== v);
+
+        if (scc.length > 1) {
+          cycles.push(scc);
+        }
+      }
     };
 
     for (const node of this.nodes.keys()) {
-      if (!visited.has(node)) {
-        dfs(node, []);
+      if (!indexMap.has(node)) {
+        strongConnect(node);
       }
     }
     return cycles;

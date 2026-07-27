@@ -26,14 +26,19 @@ function resolveSymbol(symbolQuery, graphData) {
     };
   }
 
-  // Calculate Levenshtein or fuzzy distance and sort by distance
+  // Calculate Levenshtein distance & domain centrality weighting
   const suggestions = Array.from(allSymbols)
-    .map(s => ({ symbol: s, dist: levenshteinDistance(s.toLowerCase(), q) }))
+    .map(s => {
+      const dist = levenshteinDistance(s.toLowerCase(), q);
+      const isCoreDomain = /(service|repository|domain|entity|usecase|manager|controller)/i.test(s);
+      const score = dist - (isCoreDomain ? 1.5 : 0);
+      return { symbol: s, dist, score };
+    })
     .filter(item => {
       const sLower = item.symbol.toLowerCase();
       return sLower.includes(q) || q.includes(sLower) || item.dist <= 6;
     })
-    .sort((a, b) => a.dist - b.dist)
+    .sort((a, b) => a.score - b.score)
     .map(item => item.symbol)
     .slice(0, 5);
 

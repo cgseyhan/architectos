@@ -1,24 +1,32 @@
 /**
  * ArchitectOS Zombie Export Detector
- * Identifies exported symbols with 0 external references across the repository.
+ * Identifies exported symbols with 0 external references across the repository,
+ * incorporating a robust Framework Entrypoint Whitelist (Next.js, Remix, Vitest, Express).
  */
 function detectZombieExports(graphData) {
   const { nodes, edges } = graphData;
   const unusedExports = [];
+
+  const frameworkWhitelist = new Set([
+    'default', 'main', 'handler', 'init', 'run',
+    'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS',
+    'generateMetadata', 'generateStaticParams', 'middleware',
+    'loader', 'action', 'beforeEach', 'afterEach', 'describe', 'it', 'test'
+  ]);
 
   // Build a set of all symbol names referenced or imported across files
   const importedSymbols = new Set();
   for (const node of nodes) {
     if (node.symbols && Array.isArray(node.symbols)) {
       for (const sym of node.symbols) {
-        if (typeof sym === 'string') {
-          // Check if symbol is referenced in other nodes
+        const symName = typeof sym === 'string' ? sym : (sym.name || sym.symbol);
+        if (symName) {
           const isReferenced = nodes.some(otherNode => {
             if (otherNode.id === node.id) return false;
-            return otherNode.symbols && otherNode.symbols.includes(sym);
+            return otherNode.symbols && otherNode.symbols.some(s => (typeof s === 'string' ? s : s.name) === symName);
           });
           if (isReferenced) {
-            importedSymbols.add(sym);
+            importedSymbols.add(symName);
           }
         }
       }
@@ -26,15 +34,17 @@ function detectZombieExports(graphData) {
   }
 
   for (const node of nodes) {
+    // Ignore test files and mock files for dead code detection
+    if (/(test|spec|mock|fixture|\.d\.ts)/i.test(node.path)) continue;
+
     if (node.symbols && Array.isArray(node.symbols)) {
       for (const sym of node.symbols) {
-        if (typeof sym === 'string' && !importedSymbols.has(sym)) {
-          // Filter out standard lifecycle exports like default, main, handler, etc.
-          if (!['default', 'main', 'handler', 'init', 'run', 'GET', 'POST', 'PUT', 'DELETE'].includes(sym)) {
+        const symName = typeof sym === 'string' ? sym : (sym.name || sym.symbol);
+        if (symName && !importedSymbols.has(symName)) {
+          if (!frameworkWhitelist.has(symName)) {
             unusedExports.push({
-              symbol: sym,
+              symbol: symName,
               file: node.path,
-              daysUnused: Math.floor(Math.random() * 90) + 14,
               safeToRemove: true
             });
           }

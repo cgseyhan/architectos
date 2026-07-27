@@ -74,12 +74,14 @@ class PolyglotResolver {
 
   static extractJsTsImports(content) {
     const imports = [];
-    // Match static imports, dynamic imports import('./path'), require('./path'), and barrel re-exports export * from './path'
-    const importRegex = /(?:import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|require\s*\(\s*['"]([^'"]+)['"]\s*\)|export\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"])/g;
+    const importRegex = /(?:import\s+(type\s+)?[\s\S]*?\s+from\s+['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|require\s*\(\s*['"]([^'"]+)['"]\s*\)|export\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"])/g;
     let match;
     while ((match = importRegex.exec(content)) !== null) {
-      const imp = match[1] || match[2] || match[3] || match[4] || match[5];
-      if (imp) imports.push(imp);
+      const isTypeOnly = !!match[1];
+      const imp = match[2] || match[3] || match[4] || match[5];
+      if (imp) {
+        imports.push({ path: imp, kind: isTypeOnly ? 'TYPE_ONLY' : 'RUNTIME' });
+      }
     }
     return imports;
   }
