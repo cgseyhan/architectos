@@ -37,10 +37,12 @@ function getContextBundle(query, graphData, tokenBudget = 4096) {
     }
 
     const degree = degreeMap.get(node.id) || 0;
-    const graphProximityScore = Math.min(degree * 2, 10);
+    const isCoreService = /(service|repository|facade|controller|manager)/i.test(node.name);
+    const callGraphBonus = isCoreService ? 8 : 0;
+    const graphProximityScore = Math.min(degree * 2, 10) + callGraphBonus;
 
-    // Hybrid Score: 60% BM25 + 40% Graph Proximity
-    const hybridScore = (bm25Score * 10 * 0.6) + (graphProximityScore * 0.4);
+    // Hybrid Score: 50% BM25 + 50% Call-Graph Proximity
+    const hybridScore = (bm25Score * 10 * 0.5) + (graphProximityScore * 0.5);
 
     return { node, score: hybridScore };
   }).sort((a, b) => b.score - a.score);
@@ -49,7 +51,9 @@ function getContextBundle(query, graphData, tokenBudget = 4096) {
   let estimatedTokens = 0;
 
   for (const item of scoredNodes) {
-    const nodeTokens = Math.ceil(item.node.size / 4); // ~4 chars per token
+    // Token Budget Compression: Estimate compressed payload without comments/whitespace
+    const compressedCharLength = Math.round(item.node.size * 0.55); // ~45% space savings
+    const nodeTokens = Math.ceil(compressedCharLength / 4); // ~4 chars per token
     if (estimatedTokens + nodeTokens <= tokenBudget || selectedNodes.length === 0) {
       selectedNodes.push(item.node);
       estimatedTokens += nodeTokens;

@@ -18,8 +18,20 @@ function formatRemediationTime(totalMinutes) {
   return `${hours} hrs`;
 }
 
+function detectArchetype(nodes, targetDir) {
+  const hasAppDir = nodes.some(n => /^app[\/\\]/i.test(n.path) || /^pages[\/\\]/i.test(n.path));
+  const hasPackagesDir = fs.existsSync(path.join(targetDir, 'pnpm-workspace.yaml')) || fs.existsSync(path.join(targetDir, 'lerna.json')) || nodes.some(n => /^packages[\/\\]/i.test(n.path));
+  const hasCliBin = nodes.some(n => /(bin|cli)[\/\\]/i.test(n.path));
+
+  if (hasAppDir) return 'Next.js App Router';
+  if (hasPackagesDir) return 'Monorepo Workspace';
+  if (hasCliBin) return 'Pure CLI / Tooling';
+  return 'Node.js / Web Project';
+}
+
 function calculateHealth(graphData, targetDir = process.cwd()) {
   const { nodes, edges, cycles, violations } = graphData;
+  const archetype = detectArchetype(nodes, targetDir);
 
   const totalFiles = nodes.length || 1;
   const cycleCount = cycles.length;
@@ -243,6 +255,7 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
 
   const result = {
     overallScore,
+    archetype,
     isUiProject,
     qualityModel,
     metrics: {

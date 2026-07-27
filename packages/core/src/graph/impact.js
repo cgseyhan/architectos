@@ -27,11 +27,20 @@ function analyzeImpact(target, graphData) {
   affectedSubsystems.add('JWT');
   affectedSubsystems.add('Middleware');
 
+  // Signature-Aware Impact Analysis
+  const targetNode = nodes.find(n => n.path.toLowerCase().includes(normTarget));
+  const isPublicInterface = targetNode && (
+    targetNode.symbols.some(s => typeof s === 'string' ? /interface|type|export/i.test(s) : /interface|type|export/i.test(s.kind || s.name)) ||
+    /(service|repository|api|interface|types)/i.test(targetNode.name)
+  );
+
+  const signatureType = isPublicInterface ? 'PUBLIC_EXPORTED_API' : 'INTERNAL_HELPER_LOGIC';
   const totalAffectedFiles = Math.max(transitiveDependents.size, directDependents.length > 0 ? directDependents.length * 3 : 28);
-  const riskLevel = totalAffectedFiles > 15 ? 'HIGH' : totalAffectedFiles > 5 ? 'MEDIUM' : 'LOW';
+  const riskLevel = isPublicInterface ? (totalAffectedFiles > 10 ? 'HIGH' : 'MEDIUM') : (totalAffectedFiles > 20 ? 'HIGH' : 'LOW');
 
   return {
     target: target,
+    signatureType,
     affectedSubsystems: Array.from(affectedSubsystems),
     affectedFilesCount: totalAffectedFiles,
     riskLevel,
