@@ -1,5 +1,6 @@
 /**
  * ArchitectOS Layer 8: Heterogeneous Cross-Graph Impact Engine
+ * Dynamically computes change blast radius & affected subsystems from AST graph edges.
  */
 
 function analyzeImpact(target, graphData) {
@@ -18,14 +19,19 @@ function analyzeImpact(target, graphData) {
       directDependents.push(edge.source);
       transitiveDependents.add(edge.source);
       transitiveDependents.add(edge.target);
+
+      // Infer subsystem from file path
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      if (sourceNode) {
+        const parts = sourceNode.path.split(/[\/\\]/);
+        if (parts.length > 1) affectedSubsystems.add(parts[0] !== 'src' ? parts[0] : (parts[1] || 'Core'));
+      }
     }
   }
 
-  // Determine affected subsystems
-  affectedSubsystems.add('Authentication');
-  affectedSubsystems.add('Authorization');
-  affectedSubsystems.add('JWT');
-  affectedSubsystems.add('Middleware');
+  if (affectedSubsystems.size === 0) {
+    affectedSubsystems.add('Core Subsystem');
+  }
 
   // Signature-Aware Impact Analysis
   const targetNode = nodes.find(n => n.path.toLowerCase().includes(normTarget));
@@ -35,7 +41,7 @@ function analyzeImpact(target, graphData) {
   );
 
   const signatureType = isPublicInterface ? 'PUBLIC_EXPORTED_API' : 'INTERNAL_HELPER_LOGIC';
-  const totalAffectedFiles = Math.max(transitiveDependents.size, directDependents.length > 0 ? directDependents.length * 3 : 28);
+  const totalAffectedFiles = transitiveDependents.size || directDependents.length;
   const riskLevel = isPublicInterface ? (totalAffectedFiles > 10 ? 'HIGH' : 'MEDIUM') : (totalAffectedFiles > 20 ? 'HIGH' : 'LOW');
 
   return {
