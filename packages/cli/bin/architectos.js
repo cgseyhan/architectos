@@ -465,7 +465,7 @@ Estimated effort: 45 min
     const isBoundariesSub = args.includes('boundaries');
     const isTreeFlag = args.includes('--tree');
     const filteredArgs = args.filter(a => a !== '--tree' && a !== 'ui' && a !== 'layout' && a !== 'props' && a !== 'boundaries');
-    const targetPath = filteredArgs.join(' ') || 'ShareDocumentDialog.tsx';
+    const targetPath = filteredArgs.join(' ');
 
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);

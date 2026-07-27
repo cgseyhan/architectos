@@ -11,13 +11,6 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
   const { nodes, edges } = graphData || { nodes: [], edges: [] };
   const target = targetPath || 'page.tsx';
 
-  if (options.tree) {
-    return {
-      isTree: true,
-      treeText: `Page\n ↓\nDashboard\n ↓\nSidebar\n ↓\nWorkspace\n ↓\nEditor\n ↓\nToolbar`
-    };
-  }
-
   // Helper: Filter strict UI component files (.tsx, .jsx, .vue, .svelte)
   const isUiFile = (nodePath) => {
     const p = nodePath.toLowerCase();
@@ -27,6 +20,21 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
 
   // Filter UI nodes only
   const uiNodes = nodes.filter(n => isUiFile(n.path));
+
+  // Dynamic Tree Hierarchy Generation
+  if (options.tree) {
+    if (uiNodes.length === 0) {
+      return {
+        isTree: true,
+        treeText: "No UI components found in repository graph."
+      };
+    }
+    const treeLines = uiNodes.slice(0, 7).map(n => n.name);
+    return {
+      isTree: true,
+      treeText: treeLines.join('\n  ↓\n')
+    };
+  }
 
   // If 0 UI components are detected, return N/A status with explanation
   if (uiNodes.length === 0) {
