@@ -155,6 +155,26 @@ switch (command) {
     break;
   }
 
+  case 'update':
+  case 'refresh': {
+    const startTime = Date.now();
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+    const elapsedMs = Date.now() - startTime;
+
+    if (jsonFlag) {
+      console.log(JSON.stringify({ status: "success", files: graphData.stats.totalFiles, elapsedMs }, null, 2));
+      break;
+    }
+
+    console.log(`\n🔄 ArchitectOS Repository Index Updated\n`);
+    console.log(` Scanned: ${graphData.stats.totalFiles} files`);
+    console.log(` Time:    ${elapsedMs} ms\n`);
+    console.log(`Repository index is up to date.\n`);
+    break;
+  }
+
   case 'status': {
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);

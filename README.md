@@ -46,6 +46,9 @@ AI Agent / Developer executes refactor
 # Initialize repository index
 npx architectos init
 
+# Refresh / re-index repository graph on demand
+architectos update
+
 # High-level repository review
 architectos review
 
