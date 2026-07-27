@@ -290,7 +290,7 @@ Top Problems:
       const res = detectZombieExports(graphData);
       console.log(`\nUnused exports:\n`);
       if (res.unusedExports.length === 0) {
-        console.log(` useLegacyToolbar (toolbar.tsx) - Unused for 146 days - Safe: YES\n`);
+        console.log(` ✓ Zero unused exports detected! All exported symbols are actively referenced.\n`);
       } else {
         res.unusedExports.forEach(u => console.log(` ${u.symbol} (${path.basename(u.file)}) - Safe: YES\n`));
       }
@@ -445,10 +445,7 @@ Estimated effort: 45 min
 
     console.log(`\nUnused exports:\n`);
     if (res.unusedExports.length === 0) {
-      console.log(` useLegacyToolbar`);
-      console.log(` toolbar.tsx\n`);
-      console.log(` Unused for: 146 days`);
-      console.log(` Safe to remove: YES\n`);
+      console.log(` ✓ Zero unused exports detected! All exported symbols are actively referenced.\n`);
     } else {
       res.unusedExports.forEach(u => {
         console.log(` ${u.symbol}`);
