@@ -70,6 +70,12 @@ architectos dead
 # Perform UI Architecture Review (component composition, portals, providers)
 architectos ui ShareDocumentDialog.tsx
 
+# Detect Prop Drilling & Fat Context inflation
+architectos ui props
+
+# Detect Next.js 'use client' boundary leaks & save JS bundle size
+architectos ui boundaries
+
 # Render visual component hierarchy tree
 architectos ui --tree
 

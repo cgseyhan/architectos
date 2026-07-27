@@ -413,8 +413,10 @@ Estimated effort: 45 min
 
   case 'ui':
   case 'layout': {
+    const isPropsSub = args.includes('props');
+    const isBoundariesSub = args.includes('boundaries');
     const isTreeFlag = args.includes('--tree');
-    const filteredArgs = args.filter(a => a !== '--tree' && a !== 'ui' && a !== 'layout');
+    const filteredArgs = args.filter(a => a !== '--tree' && a !== 'ui' && a !== 'layout' && a !== 'props' && a !== 'boundaries');
     const targetPath = filteredArgs.join(' ') || 'ShareDocumentDialog.tsx';
 
     const config = loadConfig(targetDir);
@@ -428,6 +430,42 @@ Estimated effort: 45 min
       console.log(`\nComponent Hierarchy Tree:\n`);
       console.log(res.treeText);
       console.log('');
+      break;
+    }
+
+    if (isPropsSub) {
+      if (jsonFlag) {
+        console.log(JSON.stringify({ propDrilling: res.propDrillingList, fatContexts: res.fatContexts }, null, 2));
+        break;
+      }
+      console.log(`\n🕳️ ArchitectOS Prop Drilling & Context Inflation Audit\n`);
+      res.propDrillingList.forEach(p => {
+        console.log(`Prop Drilling Detected (${p.depth} levels deep):`);
+        console.log(` Prop: "${p.prop}"`);
+        console.log(` Path: ${p.path}`);
+        console.log(` Recommendation: ${p.recommendation}\n`);
+      });
+      res.fatContexts.forEach(c => {
+        console.log(`⚠️ Fat Context Detected: ${c.name}`);
+        console.log(` Contains ${c.stateCount} state values & functions.`);
+        console.log(` Why it matters: ${c.whyItMatters}`);
+        console.log(` Recommendation: ${c.recommendation}\n`);
+      });
+      break;
+    }
+
+    if (isBoundariesSub) {
+      if (jsonFlag) {
+        console.log(JSON.stringify({ useClientLeaks: res.useClientLeaks }, null, 2));
+        break;
+      }
+      console.log(`\n⚡ ArchitectOS Next.js 'use client' Boundary Shield\n`);
+      res.useClientLeaks.forEach(l => {
+        console.log(`'use client' Boundary Leak Detected:`);
+        console.log(` File: ${l.file}`);
+        console.log(` Why it matters: ${l.whyItMatters}`);
+        console.log(` Recommended Fix:\n ${l.recommendation}\n`);
+      });
       break;
     }
 
