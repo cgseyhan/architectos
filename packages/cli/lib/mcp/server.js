@@ -57,51 +57,49 @@ class McpServer {
             inputSchema: { type: "object", properties: {} }
           },
           {
-            name: "architectos_get_health",
-            description: "Get repository engineering health scores (Architecture, Security, Maintainability, AI Readiness, Debt).",
+            name: "architectos_review",
+            description: "Get repository architecture health score, top issues, and fix estimations.",
             inputSchema: { type: "object", properties: {} }
           },
           {
-            name: "architectos_analyze_impact",
-            description: "Perform cross-graph impact analysis for file modification or deletion.",
+            name: "architectos_why",
+            description: "Analyze root causes for high component coupling and boundary violations.",
             inputSchema: {
               type: "object",
-              properties: {
-                filePath: { type: "string", description: "Relative path of file to analyze" }
-              },
-              required: ["filePath"]
+              properties: { target: { type: "string", description: "File or component name" } },
+              required: ["target"]
             }
           },
           {
-            name: "architectos_get_context_bundle",
-            description: "Get deterministic token-budgeted AI context bundle for a query.",
+            name: "architectos_impact",
+            description: "Analyze cross-graph downstream change impact for file, folder, symbol, or endpoint.",
             inputSchema: {
               type: "object",
-              properties: {
-                query: { type: "string", description: "Search query or task topic" },
-                tokenBudget: { type: "number", description: "Maximum token limit" }
-              },
-              required: ["query"]
+              properties: { target: { type: "string", description: "Target file, directory, symbol, or API endpoint" } },
+              required: ["target"]
             }
           },
           {
-            name: "architectos_get_fix_plan",
-            description: "Generate structured LLM refactoring implementation roadmap for Cursor/Claude agents.",
-            inputSchema: { type: "object", properties: {} }
-          },
-          {
-            name: "architectos_fix_rule",
-            description: "Execute automated architectural boundary refactoring engine for a rule.",
+            name: "architectos_plan",
+            description: "Generate structured refactoring migration plan and step-by-step guidance.",
             inputSchema: {
               type: "object",
-              properties: {
-                ruleId: { type: "string", description: "ID of rule to refactor or 'all'" }
-              }
+              properties: { target: { type: "string", description: "Target component or module" } },
+              required: ["target"]
             }
           },
           {
-            name: "architectos_check_guard",
-            description: "Run fast (<35ms) Vibe-Coding pre-commit guard check to detect architectural regressions.",
+            name: "architectos_resolve",
+            description: "Resolve symbol and verify usage, preventing AI hallucinations.",
+            inputSchema: {
+              type: "object",
+              properties: { symbol: { type: "string", description: "Symbol name to resolve" } },
+              required: ["symbol"]
+            }
+          },
+          {
+            name: "architectos_dead",
+            description: "Detect unused exports, files, interfaces, and types across repository.",
             inputSchema: { type: "object", properties: {} }
           },
           {
@@ -128,50 +126,43 @@ class McpServer {
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(graphData, null, 2) }] });
       }
 
-      if (name === 'architectos_get_health' || name === 'get_architecture_health') {
+      if (name === 'architectos_review' || name === 'architectos_get_health') {
         const health = calculateHealth(graphData, this.targetDir);
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(health, null, 2) }] });
       }
 
-      if (name === 'architectos_analyze_impact' || name === 'analyze_impact') {
-        const filePath = (args && args.filePath) || '';
-        const impact = analyzeImpact(filePath, graphData);
+      if (name === 'architectos_why') {
+        const target = (args && args.target) || 'toolbar.tsx';
+        const { explainWhy } = coreModule;
+        const result = explainWhy(target, graphData);
+        return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
+      }
+
+      if (name === 'architectos_impact' || name === 'architectos_analyze_impact') {
+        const target = (args && (args.target || args.filePath)) || 'auth.ts';
+        const { analyzeImpact } = coreModule;
+        const impact = analyzeImpact(target, graphData);
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(impact, null, 2) }] });
       }
 
-      if (name === 'architectos_get_context_bundle' || name === 'get_context_bundle') {
-        const query = (args && args.query) || '';
-        const tokenBudget = (args && args.tokenBudget) || 4096;
-        const bundle = getContextBundle(query, graphData, tokenBudget);
-        return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(bundle, null, 2) }] });
-      }
-
-      if (name === 'architectos_get_fix_plan') {
-        const health = calculateHealth(graphData, this.targetDir);
-        const plan = {
-          targetScore: 98,
-          currentScore: health.overallScore,
-          estimatedPointGain: 98 - health.overallScore,
-          prompts: [
-            { id: "refactor-presentation", task: "Create Application Service abstraction layer and update Presentation Layer imports." },
-            { id: "decouple-cycles", task: "Extract shared domain interfaces/types into a dedicated domain/types module." },
-            { id: "persist-memory", task: "Record persistent architectural rules with 'architectos remember' and generate ADRs." }
-          ]
-        };
+      if (name === 'architectos_plan' || name === 'architectos_get_fix_plan') {
+        const target = (args && args.target) || 'toolbar.tsx';
+        const { generateRefactoringPlan } = coreModule;
+        const plan = generateRefactoringPlan(target, graphData);
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(plan, null, 2) }] });
       }
 
-      if (name === 'architectos_fix_rule') {
-        const ruleId = (args && args.ruleId) || 'all';
-        const fixResult = {
-          status: "success",
-          ruleFixed: ruleId,
-          healthScoreBefore: 38,
-          healthScoreAfter: 98,
-          pointGain: "+60 pts",
-          message: "Architectural auto-fix executed successfully. AST boundaries updated."
-        };
-        return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(fixResult, null, 2) }] });
+      if (name === 'architectos_resolve') {
+        const symbolQuery = (args && args.symbol) || 'WorkspaceRepository';
+        const { resolveSymbol } = coreModule;
+        const result = resolveSymbol(symbolQuery, graphData);
+        return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
+      }
+
+      if (name === 'architectos_dead') {
+        const { detectZombieExports } = coreModule;
+        const result = detectZombieExports(graphData);
+        return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
       }
 
       if (name === 'architectos_check_guard') {

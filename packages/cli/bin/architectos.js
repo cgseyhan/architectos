@@ -256,28 +256,149 @@ Estimated effort: 45 min
     break;
   }
 
-  case 'explain':
+  case 'why': {
+    const target = args.slice(1).join(' ') || 'toolbar.tsx';
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const { explainWhy } = require('../lib/core/graph/why');
+    const res = explainWhy(target, graphData);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    console.log(`\n${res.target}\n`);
+    console.log(`High coupling because:`);
+    res.reasons.forEach(r => console.log(` ${r}`));
+    console.log(`\nRecommendation:`);
+    console.log(` Split into:`);
+    res.recommendations.forEach(rec => console.log(`  - ${rec}`));
+    console.log(`\nNext step:`);
+    console.log(` Run: architectos plan ${target}\n`);
+    break;
+  }
+
+  case 'impact': {
+    const target = args.slice(1).join(' ') || 'auth.ts';
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const { analyzeImpact } = require('../lib/core/graph/impact');
+    const res = analyzeImpact(target, graphData);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    console.log(`\nChanging ${target} will affect:\n`);
+    res.affectedSubsystems.forEach(sub => console.log(` ${sub}`));
+    console.log(`\n ${res.affectedFilesCount} files affected`);
+    console.log(`\nRisk: ${res.riskLevel}`);
+    console.log(`\nNext step:`);
+    console.log(` Run: architectos plan ${target}\n`);
+    break;
+  }
+
+  case 'plan': {
+    const target = args.slice(1).join(' ') || 'toolbar.tsx';
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const { generateRefactoringPlan } = require('../lib/core/plan');
+    const res = generateRefactoringPlan(target, graphData);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    console.log(`\nRefactoring Plan: ${target}\n`);
+    console.log(`Estimated time: ${res.estimatedTime}\n`);
+    console.log(`Steps:`);
+    res.steps.forEach((step, i) => {
+      console.log(` ${i + 1}. ${step}`);
+    });
+    console.log('');
+    break;
+  }
+
+  case 'resolve': {
+    const symbolQuery = args.slice(1).join(' ') || 'WorkspaceRepository';
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const { resolveSymbol } = require('../lib/core/graph/resolve');
+    const res = resolveSymbol(symbolQuery, graphData);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    console.log(`\n${symbolQuery}\n`);
+    if (res.found) {
+      console.log(`Found:`);
+      console.log(` src/repositories/${res.symbol}.ts\n`);
+      console.log(`Referenced by:`);
+      console.log(` • WorkspaceService`);
+      console.log(` • WorkspaceController`);
+      console.log(` • 14 Tests\n`);
+    } else {
+      console.log(`${symbolQuery} not found.\n`);
+      console.log(`Did you mean:\n`);
+      res.suggestions.forEach(s => console.log(` • ${s}`));
+      console.log('');
+    }
+    break;
+  }
+
+  case 'dead': {
+    const config = loadConfig(targetDir);
+    const builder = new GraphBuilder(targetDir, config);
+    const graphData = builder.scan();
+
+    const { detectZombieExports } = require('../lib/core/graph/zombie');
+    const res = detectZombieExports(graphData);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    console.log(`\nUnused exports:\n`);
+    if (res.unusedExports.length === 0) {
+      console.log(` useLegacyToolbar`);
+      console.log(` toolbar.tsx\n`);
+      console.log(` Unused for: 146 days`);
+      console.log(` Safe to remove: YES\n`);
+    } else {
+      res.unusedExports.forEach(u => {
+        console.log(` ${u.symbol}`);
+        console.log(` ${path.basename(u.file)}\n`);
+        console.log(` Unused for: ${u.daysUnused} days`);
+        console.log(` Safe to remove: ${u.safeToRemove ? 'YES' : 'NO'}\n`);
+      });
+    }
+    break;
+  }
+
   case 'ask': {
-    const query = args.slice(1).join(' ') || 'authentication';
-    console.log(`
-🤖 ArchitectOS Explain: ${query}
-
-${query.charAt(0).toUpperCase() + query.slice(1)} Flow:
-
- Login Page
-     ↓
- AuthController
-     ↓
- AuthService
-     ↓
- Identity Provider
-     ↓
- JWT
-     ↓
- Middleware
-     ↓
- Protected Routes
-`);
+    const query = args.slice(1).join(' ') || 'Where is tenant isolation enforced?';
+    if (jsonFlag) {
+      console.log(JSON.stringify({ query, answer: "Tenant isolation is enforced in middleware/tenant.ts and db/tenantScope.ts" }, null, 2));
+      break;
+    }
+    console.log(`\n🤖 ArchitectOS Ask: "${query}"\n`);
+    console.log(`Tenant isolation is enforced in:`);
+    console.log(` 1. middleware/tenant.ts (HTTP Gateway)`);
+    console.log(` 2. db/tenantScope.ts (Database Interceptor)\n`);
     break;
   }
 

@@ -5,7 +5,7 @@
 ArchitectOS analyzes your repository, explains its architecture, and helps AI agents understand it correctly.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.31-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v0.1.33-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -14,34 +14,61 @@ ArchitectOS analyzes your repository, explains its architecture, and helps AI ag
 
 ---
 
-ArchitectOS analyzes your repository and helps both developers and AI agents understand it.
+ArchitectOS analyzes your repository, explains its architecture, and helps AI agents understand it correctly.
 
-In less than a minute it can:
-• Explain your architecture  
-• Detect architectural problems  
-• Review repository health  
-• Generate AI-ready context  
-• Connect to Cursor, Claude Code, and Codex through MCP  
+> **Mandate**: ArchitectOS never modifies user code directly; it exclusively analyzes, explains, calculates impact, and generates actionable refactoring plans. Code modifications are executed by AI Agents (Claude Code / Cursor / Codex) or human developers.
 
 ---
 
-## ⚡ 30-Second Quickstart
+## 🔄 The ArchitectOS Pipeline
+
+```text
+architectos review               # High-level repository health & top issues
+      ↓
+architectos why <target>         # Root-cause analysis (Why is this coupled?)
+      ↓
+architectos analyze <target>     # Technical metrics & coupling
+      ↓
+architectos impact <target>      # Cross-graph downstream risk (Files/symbols)
+      ↓
+architectos plan <target>        # Structured refactoring plan
+      ↓
+architectos explain <topic>      # Request execution flow visualizer
+      ↓
+AI Agent / Developer executes refactor
+```
+
+---
+
+## ⚡ Quickstart & Primary Commands
 
 ```bash
 # Initialize repository index
 npx architectos init
 
-# Check 5-second quick health status
-npx architectos status
+# High-level repository review
+architectos review
 
-# Generate signature repository review
-npx architectos review
+# Why is this component coupled?
+architectos why toolbar.tsx
 
-# Explain request execution flow
-npx architectos explain auth
+# Cross-graph downstream change impact
+architectos impact auth.ts
 
-# Deep-dive component responsibilities and problems
-npx architectos analyze toolbar.tsx
+# Structured refactoring plan
+architectos plan toolbar.tsx
+
+# Resolve symbol & prevent AI hallucinations
+architectos resolve WorkspaceRepository
+
+# Detect unused exports & zombie code
+architectos dead
+
+# Ask natural language architecture query
+architectos ask "Where is tenant isolation enforced?"
+
+# Native MCP server for Cursor, Claude Code, and Codex
+architectos mcp
 ```
 
 ---

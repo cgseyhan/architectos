@@ -15,6 +15,9 @@ const GraphBuilder = require('./graph/builder');
 const { calculateHealth } = require('./graph/health');
 const { analyzeImpact } = require('./graph/impact');
 const { getContextBundle } = require('./graph/retrieval');
+const { explainWhy } = require('./graph/why');
+const { detectZombieExports } = require('./graph/zombie');
+const { resolveSymbol } = require('./graph/resolve');
 const MemoryEngine = require('./memory');
 const AdrEngine = require('./adr');
 const { calculateDiff } = require('./diff');
@@ -175,6 +178,9 @@ module.exports = {
   calculateHealth,
   analyzeImpact,
   getContextBundle,
+  explainWhy,
+  detectZombieExports,
+  resolveSymbol,
   MemoryEngine,
   AdrEngine,
   calculateDiff,
