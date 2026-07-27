@@ -20,32 +20,38 @@ ArchitectOS analyzes your repository, explains its architecture, calculates chan
 
 ---
 
-## ⚡ Quickstart & 7 Core Commands
+## ⚡ Quickstart & Core Commands
 
 ```bash
 # 1. Initialize and review repository
 npx architectos
 
-# 2. High-level repository health, security & UI review
+# 2. High-level repository health, security & UI review (with optional CI threshold)
 architectos review
+architectos review --threshold 80
 
-# 3. Component deep-dive (supports --why, --ui, --dead)
+# 3. Component deep-dive (supports --why, --ui, --dead, --duplication, --taint)
 architectos analyze toolbar.tsx
 architectos analyze toolbar.tsx --why
 architectos analyze --ui
 architectos analyze --dead
+architectos analyze --duplication
+architectos analyze --taint auth.controller.ts
 
-# 4. Cross-graph downstream change impact & risk rating
+# 4. View historical score timeline and trend
+architectos history
+
+# 5. Cross-graph downstream change impact & risk rating
 architectos impact auth.ts
 
-# 5. Structured refactoring migration plan
+# 6. Structured refactoring migration plan
 architectos plan toolbar.tsx
 
-# 6. Symbol resolver & natural language architecture query
+# 7. Symbol resolver & natural language architecture query
 architectos resolve WorkspaceRepository
 architectos resolve "Where is tenant isolation enforced?"
 
-# 7. Native MCP server gateway & live watcher
+# 8. Native MCP server gateway & live watcher
 architectos watch
 architectos mcp
 ```
@@ -55,15 +61,17 @@ architectos mcp
 ## 🏛️ The ArchitectOS Pipeline
 
 ```text
-architectos review               # High-level repository health & top issues
+architectos review               # High-level health & problem breakdown (--threshold 80)
       ↓
-architectos analyze <target>     # Component metrics (--why, --ui, --dead)
+architectos analyze <target>     # Deep-dive (--why, --ui, --dead, --duplication, --taint)
       ↓
 architectos impact <target>      # Cross-graph downstream change risk
       ↓
 architectos plan <target>        # Step-by-step refactoring migration plan
       ↓
 architectos resolve <symbol>     # Hallucination shield & symbol resolver
+      ↓
+architectos history              # Historical score timeline & trend tracking
       ↓
 AI Agent / Developer executes refactor
 ```
@@ -72,16 +80,17 @@ AI Agent / Developer executes refactor
 
 ## 🎯 Engine Precision & Accuracy Features
 
-- **Framework Entrypoint Whitelist**: Eliminates false positives for Next.js (`GET`, `POST`, `generateMetadata`, `middleware`), Remix, and Vitest test suites.
-- **Type-Only vs Runtime Edge Separation**: Distinguishes compile-time `import type` from heavy runtime JavaScript bundle weight.
+- **25 CWE-Mapped SAST Engine**: High-precision rules covering SQLi, XSS, RCE, ReDoS, Prototype Pollution, NoSQLi, Open Redirect, Unsafe Deserialization, and Weak Cryptography.
+- **Context-Aware Noise Filter**: Automatically suppresses false positives inside test blocks (`describe`/`it`), JSDoc comments, dead conditional branches, and when known sanitizers (`DOMPurify`, `escapeHtml`) are detected.
+- **Multi-File Taint Tracking Engine**: Traces untrusted user inputs (HTTP `req.body`/`searchParams`) down to dangerous execution sinks across multi-file import graphs.
+- **Code Duplication Scanner**: Token-fingerprinted Jaccard similarity engine detecting copy-pasted code blocks across monorepo packages.
+- **Framework Entrypoint Whitelist**: Eliminates false positives for Next.js (`GET`, `POST`, `generateMetadata`, `middleware`), Remix, Vitest, and CLI entrypoints.
 - **Tarjan SCC Cycle Detection**: Mathematically sound circular dependency cycle detection for complex monorepos.
-- **Breaking API AST Diffing**: Detects removed exported functions or modified interface signatures (`BREAKING_API_CHANGE`).
-- **SAST Noise Filter**: Excludes `.env.example`, `fixtures/`, `mocks/`, and test files from production security scoring.
-- **Deterministic AST Synonym Expansion**: Derives natural language search tokens directly from codebase AST identifiers.
+- **Public Scoring Transparency**: Fully documented formulas and deduction rules in [SCORING.md](SCORING.md).
 
 ---
 
-## 🧪 Real-World Benchmark Verification (v1.1.8 Engine Breakdown)
+## 🧪 Real-World Benchmark Verification (v1.2.1 Engine Breakdown)
 
 ArchitectOS is battle-tested and dogfooded across major open-source codebases with transparent sub-metric scoring:
 
@@ -90,7 +99,7 @@ ArchitectOS is battle-tested and dogfooded across major open-source codebases wi
 | **`excalidraw/excalidraw`** | 520+ | **88/100** | 92 | 84 | 90 | 94 | 80 | **<18ms** | Canvas Component Decomposition |
 | **`calcom/cal.com`** | 1,400+ | **84/100** | 80 | 88 | 82 | 90 | 80 | **<45ms** | Booking Service Layer Isolation |
 | **`shadcn/ui`** | 120+ | **96/100** | 98 | 95 | 96 | 95 | 96 | **<8ms** | UI Component Primitive Boundaries |
-| **`cgseyhan/architectos`** | 62 | **100/100** | 100 | 100 | 100 | 100 | N/A | **<35ms** | Native Self-Hosted AST Governance |
+| **`cgseyhan/architectos`** | 51 | **100/100** | 100 | 100 | 100 | 100 | N/A | **<19ms** | Native Self-Hosted AST Governance |
 
 *Note: Pure CLI / backend repositories (e.g. `architectos`) omit UI Architecture scoring.*
 

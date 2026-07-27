@@ -1,9 +1,9 @@
 # @architectos/core
 
-> Core AST parsing, knowledge graph indexing, health scoring, and retrieval engine for ArchitectOS.
+> Core AST parsing, knowledge graph indexing, health scoring, SAST security scanner, taint tracking, and duplication detection engine for ArchitectOS.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.30-orange.svg)](https://www.npmjs.com/package/@architectos/core)
+[![NPM Version](https://img.shields.io/badge/npm-v1.2.1-orange.svg)](https://www.npmjs.com/package/@architectos/core)
 
 ---
 
@@ -18,7 +18,16 @@ npm install @architectos/core
 ## ⚡ Programmatic Usage
 
 ```javascript
-const { GraphBuilder, calculateHealth, loadConfig, getContextBundle, exportGraph } = require('@architectos/core');
+const {
+  GraphBuilder,
+  calculateHealth,
+  loadConfig,
+  scanCodeForVulnerabilities,
+  scanDuplication,
+  analyzeTaint,
+  exportGraph,
+  getContextBundle
+} = require('@architectos/core');
 
 const targetDir = process.cwd();
 const config = loadConfig(targetDir);
@@ -27,29 +36,39 @@ const config = loadConfig(targetDir);
 const builder = new GraphBuilder(targetDir, config);
 const graphData = builder.scan();
 
-// 2. Calculate engineering health metrics
+// 2. Calculate engineering health metrics (Architecture, Security, Quality, AI Readiness)
 const health = calculateHealth(graphData, targetDir);
 console.log(`Overall Health Score: ${health.overallScore}/100`);
 
-// 3. Export graph to Mermaid format
+// 3. Scan code for 25 CWE security vulnerabilities with context-aware noise filtering
+const vulns = scanCodeForVulnerabilities(sourceCode, 'src/controllers/auth.ts');
+console.log(`Vulnerabilities found: ${vulns.length}`);
+
+// 4. Run token-fingerprinted code duplication analysis
+const dupResult = scanDuplication(graphData, targetDir);
+console.log(`Duplication Ratio: ${dupResult.duplicationRatio}`);
+
+// 5. Trace multi-file untrusted data flow (Sources -> Sinks)
+const taintResult = analyzeTaint('auth.controller.ts', graphData, targetDir);
+console.log(`Taint paths detected: ${taintResult.detectedPathsCount}`);
+
+// 6. Export graph to Mermaid format
 const mermaidGraph = exportGraph(graphData, 'mermaid');
 console.log(mermaidGraph);
-
-// 4. Retrieve token-budgeted AI context bundle
-const bundle = getContextBundle('Authentication Flow', graphData, 4096);
-console.log(`Context Token Count: ~${bundle.estimatedTokenCount}`);
 ```
 
 ---
 
-## ⚙️ Modules & Exports
+## ⚙️ Core Modules & Engines
 
 - `GraphBuilder`: Multi-source AST dependency parser and incremental indexing engine.
-- `calculateHealth`: Engineering health scoring matrix (Architecture, Security, Quality, AI Readiness, Maintainability).
+- `calculateHealth`: Engineering health scoring matrix with transparent deduction reasons.
+- `scanCodeForVulnerabilities`: 25 CWE-mapped SAST engine with JSDoc, test block, and sanitizer filters.
+- `scanDuplication`: Token-fingerprinted Jaccard similarity engine detecting copy-pasted code blocks.
+- `analyzeTaint`: Multi-file source-to-sink data flow tracer across import graphs.
 - `getContextBundle`: Deterministic token-budgeted AI context retrieval engine for Cursor and Claude.
 - `watchRepository`: Live file change watcher with sub-150ms incremental twin updates.
 - `exportGraph`: Multi-format export engine (`mermaid`, `markdown`, `json`).
-- `loadConfig`: Configuration loader with `.architectosignore` support.
 
 ---
 
