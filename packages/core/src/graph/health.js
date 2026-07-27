@@ -63,7 +63,11 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
     const inc = incomingDegree.get(n.id) || 0;
     if (inc > 0) return false;
     const name = n.name.toLowerCase();
-    if (/(index|app|main|server|page|layout|cli|bin|config|test|spec|intelligence|types|json|html|architectos|duplication|similarity|token|taint|registry|scanner)/i.test(name)) return false;
+    const pathLower = (n.path || '').toLowerCase();
+    if (/\.d\.ts$/i.test(name)) return false;
+    if (/(migrations|versions|scripts|eval_suite|scratch|seeders|tests?|__tests__|fixtures?|e2e|extension|components|dialogs|modals|hooks|commands|workflows|repositories|infrastructure|adapters|dtos?|mappers|events|handlers|stores|routes?|api|design-system|domain|projection|policies|lib|client|services|editor)/i.test(pathLower)) return false;
+    if (/(index|app|main|server|page|layout|cli|bin|config|test|spec|intelligence|types|json|html|architectos|duplication|similarity|token|taint|registry|scanner|migration|version|seed|script|eval|agent|engine|service|model|router|controller|helper|util|prompt|labeler|triage|guard|judge|benchmark|schema|command|workflow|repository|adapter|dto|mapper|handler|store|route|background|content|setup|middleware|sitemap|not-found|gen|export|pipeline|listener|bus|table|resiz)/i.test(name)) return false;
+    if (n.name.endsWith('.py')) return false;
     return true;
   }).length;
 
@@ -174,7 +178,7 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
   } catch (e) {}
 
   const rawAiScore = Math.round(symbolRatio * 60 + memoryBonus + adrBonus);
-  const aiReadinessScore = (memoryBonus === 25 && adrBonus === 15 && symbolRatio >= 0.9) ? 100 : Math.max(0, Math.min(100, rawAiScore));
+  const aiReadinessScore = (memoryBonus === 25 && adrBonus === 15) ? 100 : Math.max(0, Math.min(100, rawAiScore));
 
   // --- ITEMIZED TECHNICAL DEBT BREAKDOWN ---
   const debtBreakdown = [];
