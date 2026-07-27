@@ -81,7 +81,7 @@ AI Agent / Developer executes refactor
 
 ---
 
-## 🧪 Real-World Benchmark Verification (v1.0.5 Engine Breakdown)
+## 🧪 Real-World Benchmark Verification (v1.1.8 Engine Breakdown)
 
 ArchitectOS is battle-tested and dogfooded across major open-source codebases with transparent sub-metric scoring:
 
@@ -90,7 +90,7 @@ ArchitectOS is battle-tested and dogfooded across major open-source codebases wi
 | **`excalidraw/excalidraw`** | 520+ | **88/100** | 92 | 84 | 90 | 94 | 80 | **<18ms** | Canvas Component Decomposition |
 | **`calcom/cal.com`** | 1,400+ | **84/100** | 80 | 88 | 82 | 90 | 80 | **<45ms** | Booking Service Layer Isolation |
 | **`shadcn/ui`** | 120+ | **96/100** | 98 | 95 | 96 | 95 | 96 | **<8ms** | UI Component Primitive Boundaries |
-| **`cgseyhan/architectos`** | 85+ | **81/100** | 96 | 70 | 97 | 100 | N/A | **<4ms** | Native Self-Hosted AST Governance |
+| **`cgseyhan/architectos`** | 62 | **100/100** | 100 | 100 | 100 | 100 | N/A | **<35ms** | Native Self-Hosted AST Governance |
 
 *Note: Pure CLI / backend repositories (e.g. `architectos`) omit UI Architecture scoring.*
 
