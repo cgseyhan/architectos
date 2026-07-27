@@ -39,6 +39,9 @@ function detectZombieExports(graphData) {
 
     if (node.symbols && Array.isArray(node.symbols)) {
       for (const sym of node.symbols) {
+        const isExported = typeof sym === 'object' ? (sym.exported === true || sym.kind === 'export') : false;
+        if (!isExported) continue;
+
         const symName = typeof sym === 'string' ? sym : (sym.name || sym.symbol);
         if (symName && !importedSymbols.has(symName)) {
           if (!frameworkWhitelist.has(symName)) {

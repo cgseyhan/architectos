@@ -185,30 +185,30 @@ class GraphBuilder {
       const isPython = filePath.endsWith('.py');
       if (isPython) {
         const pyClasses = content.matchAll(/^class\s+([A-Za-z0-9_]+)/gm);
-        for (const match of pyClasses) symbols.push({ name: match[1], kind: 'class' });
+        for (const match of pyClasses) symbols.push({ name: match[1], kind: 'class', exported: true });
 
         const pyFunctions = content.matchAll(/^(?:async\s+)?def\s+([A-Za-z0-9_]+)/gm);
-        for (const match of pyFunctions) symbols.push({ name: match[1], kind: 'function' });
+        for (const match of pyFunctions) symbols.push({ name: match[1], kind: 'function', exported: true });
       } else {
-        const classMatches = content.matchAll(/(?:export\s+)?(?:default\s+)?class\s+([A-Za-z0-9_]+)/g);
-        for (const match of classMatches) symbols.push({ name: match[1], kind: 'class' });
+        const classMatches = content.matchAll(/export\s+(?:default\s+)?class\s+([A-Za-z0-9_]+)/g);
+        for (const match of classMatches) symbols.push({ name: match[1], kind: 'class', exported: true });
 
-        const fnMatches = content.matchAll(/(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)?/g);
+        const fnMatches = content.matchAll(/export\s+(?:default\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)?/g);
         for (const match of fnMatches) {
-          if (match[1]) symbols.push({ name: match[1], kind: 'function' });
+          if (match[1]) symbols.push({ name: match[1], kind: 'function', exported: true });
         }
 
-        const interfaceMatches = content.matchAll(/(?:export\s+)?interface\s+([A-Za-z0-9_]+)/g);
-        for (const match of interfaceMatches) symbols.push({ name: match[1], kind: 'interface' });
+        const interfaceMatches = content.matchAll(/export\s+interface\s+([A-Za-z0-9_]+)/g);
+        for (const match of interfaceMatches) symbols.push({ name: match[1], kind: 'interface', exported: true });
 
-        const typeMatches = content.matchAll(/(?:export\s+)?type\s+([A-Za-z0-9_]+)/g);
-        for (const match of typeMatches) symbols.push({ name: match[1], kind: 'type' });
+        const typeMatches = content.matchAll(/export\s+type\s+([A-Za-z0-9_]+)/g);
+        for (const match of typeMatches) symbols.push({ name: match[1], kind: 'type', exported: true });
 
-        const varMatches = content.matchAll(/(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_]+)/g);
-        for (const match of varMatches) symbols.push({ name: match[1], kind: 'variable' });
+        const varMatches = content.matchAll(/export\s+(?:const|let|var)\s+([A-Za-z0-9_]+)/g);
+        for (const match of varMatches) symbols.push({ name: match[1], kind: 'variable', exported: true });
 
-        if (/export\s+default/.test(content)) symbols.push({ name: 'default', kind: 'export' });
-        if (/module\.exports/.test(content)) symbols.push({ name: 'exports', kind: 'export' });
+        if (/export\s+default/.test(content)) symbols.push({ name: 'default', kind: 'export', exported: true });
+        if (/module\.exports/.test(content)) symbols.push({ name: 'exports', kind: 'export', exported: true });
       }
     } catch (e) {}
     return symbols;
