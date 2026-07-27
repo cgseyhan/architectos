@@ -1,0 +1,30 @@
+name: ArchitectOS Governance & Regression Shield
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  audit:
+    name: Architecture & Health Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ArchitectOS
+        run: npm install -g architectos
+
+      - name: Run ArchitectOS Review
+        run: npx architectos review
+
+      - name: Run ArchitectOS Impact Shield
+        run: npx architectos impact .

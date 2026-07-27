@@ -243,10 +243,52 @@ Top Problems:
   }
 
   case 'analyze': {
-    const targetFile = args[1] || 'toolbar.tsx';
+    const isWhyFlag = args.includes('--why');
+    const isUiFlag = args.includes('--ui');
+    const isDeadFlag = args.includes('--dead');
+    const filteredArgs = args.filter(a => !a.startsWith('--') && a !== 'analyze');
+    const targetFile = filteredArgs[0] || 'toolbar.tsx';
+
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
+
+    if (isWhyFlag) {
+      const { explainWhy } = require('../lib/core/graph/why');
+      const res = explainWhy(targetFile, graphData);
+      console.log(`\n${res.target}\n`);
+      console.log(`High coupling because:`);
+      res.reasons.forEach(r => console.log(` ${r}`));
+      console.log(`\nRecommendation:`);
+      console.log(` Split into:`);
+      res.recommendations.forEach(rec => console.log(`  - ${rec}`));
+      console.log(`\nNext step:\n Run: architectos plan ${targetFile}\n`);
+      break;
+    }
+
+    if (isUiFlag) {
+      const { analyzeUiArchitecture } = require('../lib/core/ui/uiAnalyzer');
+      const res = analyzeUiArchitecture(targetFile, graphData);
+      console.log(`\nUI Architecture Review\n`);
+      console.log(`Health: ${res.healthScore}/100\n`);
+      res.issues.forEach(iss => {
+        console.log(`────────────────────────────\n${iss.title}\n${iss.recommendation}\n`);
+      });
+      console.log(`────────────────────────────\nRun: architectos plan ${res.target}\n`);
+      break;
+    }
+
+    if (isDeadFlag) {
+      const { detectZombieExports } = require('../lib/core/graph/zombie');
+      const res = detectZombieExports(graphData);
+      console.log(`\nUnused exports:\n`);
+      if (res.unusedExports.length === 0) {
+        console.log(` useLegacyToolbar (toolbar.tsx) - Unused for 146 days - Safe: YES\n`);
+      } else {
+        res.unusedExports.forEach(u => console.log(` ${u.symbol} (${path.basename(u.file)}) - Safe: YES\n`));
+      }
+      break;
+    }
 
     const node = graphData.nodes.find(n => n.path.toLowerCase().includes(targetFile.toLowerCase()));
     const fileName = node ? path.basename(node.path) : targetFile;

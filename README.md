@@ -5,7 +5,7 @@
 ArchitectOS analyzes your repository, explains its architecture, and helps AI agents understand it correctly.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v0.1.33-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v1.0.0-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -43,46 +43,30 @@ AI Agent / Developer executes refactor
 ## ⚡ Quickstart & Primary Commands
 
 ```bash
-# Initialize repository index
+# 1. Initialize or refresh repository index
 npx architectos init
 
-# Refresh / re-index repository graph on demand
-architectos update
-
-# High-level repository review
+# 2. High-level repository health, security & UI review
 architectos review
 
-# Why is this component coupled?
-architectos why toolbar.tsx
+# 3. Component deep-dive (supports --why, --ui, --dead)
+architectos analyze toolbar.tsx
+architectos analyze toolbar.tsx --why
+architectos analyze --ui
+architectos analyze --dead
 
-# Cross-graph downstream change impact
+# 4. Cross-graph downstream change impact
 architectos impact auth.ts
 
-# Structured refactoring plan
+# 5. Structured refactoring migration plan
 architectos plan toolbar.tsx
 
-# Resolve symbol & prevent AI hallucinations
+# 6. Symbol resolver & natural language query
 architectos resolve WorkspaceRepository
+architectos resolve "Where is tenant isolation enforced?"
 
-# Detect unused exports & zombie code
-architectos dead
-
-# Perform UI Architecture Review (component composition, portals, providers)
-architectos ui ShareDocumentDialog.tsx
-
-# Detect Prop Drilling & Fat Context inflation
-architectos ui props
-
-# Detect Next.js 'use client' boundary leaks & save JS bundle size
-architectos ui boundaries
-
-# Render visual component hierarchy tree
-architectos ui --tree
-
-# Ask natural language architecture query
-architectos ask "Where is tenant isolation enforced?"
-
-# Native MCP server for Cursor, Claude Code, and Codex
+# 7. Native MCP server gateway & live watcher
+architectos watch
 architectos mcp
 ```
 
