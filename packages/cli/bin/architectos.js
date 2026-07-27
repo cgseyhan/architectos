@@ -218,14 +218,15 @@ Last indexed: Just now
       break;
     }
 
+    const reasons = health.scoreReasons || {};
     console.log(`
 📊 ArchitectOS Repository Review
 
 Overall Health: ${health.overallScore}/100
- ├── Architecture:    ${health.metrics.architecture}/100
- ├── Security:        ${health.metrics.security}/100
- ├── Code Quality:    ${health.metrics.codeQuality}/100
- ├── AI Readiness:    ${health.metrics.aiReadiness}/100${health.metrics.uiArchitecture !== null ? `\n └── UI Architecture: ${health.metrics.uiArchitecture}/100` : ''}
+ ├── Architecture:    ${health.metrics.architecture}/100  (${reasons.architecture || 'Clean'})
+ ├── Security:        ${health.metrics.security}/100  (${reasons.security || 'Clean'})
+ ├── Code Quality:    ${health.metrics.codeQuality}/100  (${reasons.codeQuality || 'Clean'})
+ ├── AI Readiness:    ${health.metrics.aiReadiness}/100  (${reasons.aiReadiness || 'Clean'})${health.metrics.uiArchitecture !== null ? `\n └── UI Architecture: ${health.metrics.uiArchitecture}/100` : ''}
 
 Top Problems:
 `);
