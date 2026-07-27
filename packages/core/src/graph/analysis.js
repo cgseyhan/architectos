@@ -1,7 +1,6 @@
 /**
  * ArchitectOS Layer 13: Repository Analysis Engine
- * Computes transparent inline score reasons, Refactor Safety %,
- * compact Repository Insights, and Top Recommendations.
+ * Computes transparent inline score reasons with explicit point deduction breakdowns.
  */
 const fs = require('fs');
 const path = require('path');
@@ -14,66 +13,77 @@ class RepositoryAnalysisEngine {
   }
 
   /**
-   * Transparent Inline Score Reasons (Why points were deducted)
+   * Transparent Inline Score Reasons (Explains exact point deductions for any score < 100)
    */
   getScoreReasons() {
     const summary = this.healthResult.summary || {};
     const metrics = this.healthResult.metrics || {};
+    const nodes = this.graphData.nodes || [];
     const reasons = {};
 
     // 1. Architecture Reason
-    const archViolations = summary.constitutionViolations || 0;
-    const cycles = summary.circularDependencyCycles || 0;
-    const godComp = summary.godComponentsCount || 0;
-    if (archViolations === 0 && cycles === 0 && godComp === 0) {
-      reasons.architecture = "Clean domain boundaries & DAG graph integrity";
+    const archScore = metrics.architecture || 100;
+    if (archScore === 100) {
+      reasons.architecture = "100% Clean: Perfect domain boundaries & DAG graph integrity";
     } else {
       const parts = [];
-      if (archViolations > 0) parts.push(`${archViolations} Layer Violation(s)`);
-      if (cycles > 0) parts.push(`${cycles} Cycle(s)`);
-      if (godComp > 0) parts.push(`${godComp} God Component(s)`);
-      reasons.architecture = parts.join(', ');
+      if (summary.constitutionViolations > 0) parts.push(`${summary.constitutionViolations} Layer Violation(s)`);
+      if (summary.circularDependencyCycles > 0) parts.push(`${summary.circularDependencyCycles} Cycle(s)`);
+      if (summary.godComponentsCount > 0) parts.push(`${summary.godComponentsCount} God Component(s)`);
+      if (summary.deadCodeFilesCount > 0) parts.push(`${summary.deadCodeFilesCount} Dead Code file(s)`);
+      const loss = 100 - archScore;
+      reasons.architecture = `-${loss} pts: ${parts.join(', ') || 'AST complexity & module coupling'}`;
     }
 
     // 2. Security Reason
-    const sast = summary.sastVulnerabilities || 0;
-    const supplyChain = summary.supplyChainRisks || 0;
-    if (sast === 0 && supplyChain === 0) {
-      reasons.security = "Zero SAST vulnerabilities & secrets detected";
+    const secScore = metrics.security || 100;
+    if (secScore === 100) {
+      reasons.security = "100% Clean: Zero SAST vulnerabilities & secrets detected";
     } else {
       const parts = [];
-      if (sast > 0) parts.push(`${sast} SAST Flaw(s)`);
-      if (supplyChain > 0) parts.push(`${supplyChain} Supply Chain Risk(s)`);
-      reasons.security = parts.join(', ');
+      if (summary.sastVulnerabilities > 0) parts.push(`${summary.sastVulnerabilities} SAST Flaw(s)`);
+      if (summary.supplyChainRisks > 0) parts.push(`${summary.supplyChainRisks} Supply Chain Risk(s)`);
+      const loss = 100 - secScore;
+      reasons.security = `-${loss} pts: ${parts.join(', ') || 'Security vulnerabilities detected'}`;
     }
 
-    // 3. AI Readiness Reason
-    if (metrics.aiReadiness >= 90) {
-      reasons.aiReadiness = "100% Symbol coverage & active memory rules";
+    // 3. Code Quality Reason
+    const qualScore = metrics.codeQuality || 100;
+    if (qualScore === 100) {
+      reasons.codeQuality = "100% Clean: Optimal AST complexity across all modules";
     } else {
-      reasons.aiReadiness = "Missing persistent memory rules or ADRs";
+      const largeFiles = nodes.filter(n => n.lines > 300).length;
+      const giantFiles = nodes.filter(n => n.lines > 600).length;
+      const loss = 100 - qualScore;
+      const parts = [];
+      if (giantFiles > 0) parts.push(`${giantFiles} giant file(s) >600 LOC`);
+      if (largeFiles > 0) parts.push(`${largeFiles} large file(s) >300 LOC`);
+      reasons.codeQuality = `-${loss} pts: ${parts.join(', ') || 'High file LOC & AST complexity'}`;
     }
 
-    // 4. Code Quality Reason
-    reasons.codeQuality = "Evaluated across AST complexity & file sizes";
-
-    // 5. Testability Reason
-    reasons.testability = "Evaluated against valid assertion test files";
-
-    // 6. Maintainability Reason
-    const deadCode = summary.deadCodeFilesCount || 0;
-    if (deadCode === 0) {
-      reasons.maintainability = "Optimal component modularity & low debt";
+    // 4. AI Readiness Reason
+    const aiScore = metrics.aiReadiness || 100;
+    if (aiScore === 100) {
+      reasons.aiReadiness = "100% Clean: Full symbol coverage & active memory rules";
     } else {
-      reasons.maintainability = `${deadCode} Dead Code file(s) detected`;
+      const loss = 100 - aiScore;
+      reasons.aiReadiness = `-${loss} pts: Missing persistent architectural rules or ADRs`;
+    }
+
+    // 5. UI Architecture Reason
+    if (metrics.uiArchitecture !== null) {
+      const uiScore = metrics.uiArchitecture;
+      if (uiScore === 100) {
+        reasons.uiArchitecture = "100% Clean: Decoupled UI composition & zero 'use client' leaks";
+      } else {
+        const loss = 100 - uiScore;
+        reasons.uiArchitecture = `-${loss} pts: Oversized UI components (>400 LOC) or 'use client' leaks`;
+      }
     }
 
     return reasons;
   }
 
-  /**
-   * Refactor Safety Rating (%)
-   */
   getRefactorSafety() {
     const summary = this.healthResult.summary || {};
     const violations = summary.constitutionViolations || 0;
@@ -82,7 +92,6 @@ class RepositoryAnalysisEngine {
     const godComp = summary.godComponentsCount || 0;
 
     const safetyScore = Math.max(40, Math.min(100, 100 - (violations * 10 + cycles * 15 + sast * 10 + godComp * 5)));
-    
     let statusMsg = "Safe for AI-assisted refactoring";
     if (safetyScore < 70) statusMsg = "Requires manual developer review before AI refactoring";
 
@@ -92,9 +101,6 @@ class RepositoryAnalysisEngine {
     };
   }
 
-  /**
-   * Compact Repository Insights (4 Lines)
-   */
   getRepositoryInsights() {
     const nodes = this.graphData.nodes || [];
     let largestModule = 'None';
@@ -130,9 +136,6 @@ class RepositoryAnalysisEngine {
     };
   }
 
-  /**
-   * Prioritized Top Recommendations (with Estimated Gain & Estimated Time)
-   */
   getTopRecommendations() {
     const summary = this.healthResult.summary || {};
     const metrics = this.healthResult.metrics || {};
