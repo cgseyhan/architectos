@@ -67,8 +67,11 @@ architectos resolve WorkspaceRepository
 # Detect unused exports & zombie code
 architectos dead
 
-# Audit UI component placement & layout hierarchy
-architectos layout ShareDocumentDialog.tsx
+# Perform UI Architecture Review (component composition, portals, providers)
+architectos ui ShareDocumentDialog.tsx
+
+# Render visual component hierarchy tree
+architectos ui --tree
 
 # Ask natural language architecture query
 architectos ask "Where is tenant isolation enforced?"

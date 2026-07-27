@@ -192,9 +192,11 @@ switch (command) {
 
 Repository:   ${repoName}
 Health:       ${health.overallScore}/100
- ├── Architecture: ${health.metrics.architecture}/100
- ├── Security:     ${health.metrics.security}/100
- └── AI Readiness: ${health.metrics.aiReadiness}/100
+ ├── Architecture:    ${health.metrics.architecture}/100
+ ├── Security:        ${health.metrics.security}/100
+ ├── Code Quality:    ${health.metrics.codeQuality}/100
+ ├── AI Readiness:    ${health.metrics.aiReadiness}/100
+ └── UI Architecture: ${health.metrics.uiArchitecture}/100
 
 AI Readiness Breakdown:
  ✓ Public APIs discoverable
@@ -221,9 +223,11 @@ Last indexed: Just now
 📊 ArchitectOS Repository Review
 
 Overall Health: ${health.overallScore}/100
- ├── Architecture: ${health.metrics.architecture}/100
- ├── Security:     ${health.metrics.security}/100
- └── AI Readiness: ${health.metrics.aiReadiness}/100
+ ├── Architecture:    ${health.metrics.architecture}/100
+ ├── Security:        ${health.metrics.security}/100
+ ├── Code Quality:    ${health.metrics.codeQuality}/100
+ ├── AI Readiness:    ${health.metrics.aiReadiness}/100
+ └── UI Architecture: ${health.metrics.uiArchitecture}/100
 
 Top Problems:
 
@@ -409,35 +413,45 @@ Estimated effort: 45 min
     break;
   }
 
-  case 'layout':
-  case 'ui': {
-    const targetPath = args.slice(1).join(' ') || 'ShareDocumentDialog.tsx';
+  case 'ui':
+  case 'layout': {
+    const isTreeFlag = args.includes('--tree');
+    const filteredArgs = args.filter(a => a !== '--tree' && a !== 'ui' && a !== 'layout');
+    const targetPath = filteredArgs.join(' ') || 'ShareDocumentDialog.tsx';
+
     const config = loadConfig(targetDir);
     const builder = new GraphBuilder(targetDir, config);
     const graphData = builder.scan();
 
-    const { scanUiLayout } = require('../lib/core/ui/layoutScanner');
-    const res = scanUiLayout(targetPath, graphData);
+    const { analyzeUiArchitecture } = require('../lib/core/ui/uiAnalyzer');
+    const res = analyzeUiArchitecture(targetPath, graphData, { tree: isTreeFlag });
+
+    if (isTreeFlag) {
+      console.log(`\nComponent Hierarchy Tree:\n`);
+      console.log(res.treeText);
+      console.log('');
+      break;
+    }
 
     if (jsonFlag) {
       console.log(JSON.stringify(res, null, 2));
       break;
     }
 
-    console.log(`\n📐 ArchitectOS UI Layout & Component Hierarchy Audit\n`);
-    console.log(`Target: ${res.target}\n`);
-    console.log(`Component Placement Audit:`);
+    console.log(`\nUI Architecture Review\n`);
+    console.log(`Health: ${res.healthScore}/100\n`);
+    console.log(`Issues:         ${res.issuesCount}`);
+    console.log(`Warnings:       ${res.warningsCount}`);
+    console.log(`Good Practices: ${res.goodPracticesCount}\n`);
+
     res.issues.forEach(iss => {
-      console.log(` ❌ ${iss.problem}`);
-      console.log(`    Why it matters: ${iss.whyItMatters}`);
-      console.log(`    Suggested placement: ${iss.suggestedPlacement}\n`);
+      console.log(`────────────────────────────\n`);
+      console.log(`${iss.title}`);
+      console.log(`${iss.recommendation}\n`);
     });
-    console.log(`UI Hierarchy Health: ${res.healthScore}/100`);
-    console.log(` ├── Shell Isolation:    ${res.metrics.shellIsolation}/100`);
-    console.log(` ├── Portal & Overlay:   ${res.metrics.portalOverlay}/100`);
-    console.log(` └── Layout Decomposition: ${res.metrics.layoutDecomposition}/100\n`);
-    console.log(`Next step:`);
-    console.log(` Run: architectos plan ${res.target}\n`);
+
+    console.log(`────────────────────────────\n`);
+    console.log(`Run: architectos plan ${res.target}\n`);
     break;
   }
 

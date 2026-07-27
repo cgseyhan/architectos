@@ -19,6 +19,7 @@ const { explainWhy } = require('./graph/why');
 const { detectZombieExports } = require('./graph/zombie');
 const { resolveSymbol } = require('./graph/resolve');
 const { scanUiLayout } = require('./ui/layoutScanner');
+const { analyzeUiArchitecture } = require('./ui/uiAnalyzer');
 const MemoryEngine = require('./memory');
 const AdrEngine = require('./adr');
 const { calculateDiff } = require('./diff');
@@ -183,6 +184,7 @@ module.exports = {
   detectZombieExports,
   resolveSymbol,
   scanUiLayout,
+  analyzeUiArchitecture,
   MemoryEngine,
   AdrEngine,
   calculateDiff,

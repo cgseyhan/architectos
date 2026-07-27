@@ -103,8 +103,8 @@ class McpServer {
             inputSchema: { type: "object", properties: {} }
           },
           {
-            name: "architectos_layout",
-            description: "Audit UI component hierarchy, portal/overlay placement, and layout boundaries.",
+            name: "architectos_ui",
+            description: "Perform UI Architecture Review auditing component composition, portal placement, and provider boundaries.",
             inputSchema: {
               type: "object",
               properties: { target: { type: "string", description: "Target UI component or file" } }
@@ -173,10 +173,10 @@ class McpServer {
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
       }
 
-      if (name === 'architectos_layout') {
+      if (name === 'architectos_ui' || name === 'architectos_layout') {
         const target = (args && args.target) || 'ShareDocumentDialog.tsx';
-        const { scanUiLayout } = coreModule;
-        const result = scanUiLayout(target, graphData);
+        const { analyzeUiArchitecture } = coreModule;
+        const result = analyzeUiArchitecture(target, graphData);
         return this.sendResult(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
       }
 
