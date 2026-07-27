@@ -2,10 +2,12 @@
 
 # ArchitectOS
 
-ArchitectOS analyzes your repository, explains its architecture, and helps AI agents understand it correctly.
+### AI-Native Repository Intelligence & Governance Engine
+
+ArchitectOS analyzes your repository, explains its architecture, calculates change impact, and enforces guardrails for AI Agents (Claude Code / Cursor / Codex).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NPM Version](https://img.shields.io/badge/npm-v1.0.0-orange.svg)](https://www.npmjs.com/package/architectos)
+[![NPM Version](https://img.shields.io/badge/npm-v1.0.5-orange.svg)](https://www.npmjs.com/package/architectos)
 [![Dogfooded with ArchitectOS](https://img.shields.io/badge/ArchitectOS-Self--Hosted-emerald.svg)](https://github.com/cgseyhan/architectos)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![MCP Ready](https://img.shields.io/badge/MCP-Native-purple.svg)](https://modelcontextprotocol.io/)
@@ -14,33 +16,11 @@ ArchitectOS analyzes your repository, explains its architecture, and helps AI ag
 
 ---
 
-ArchitectOS analyzes your repository, explains its architecture, and helps AI agents understand it correctly.
-
-> **Mandate**: ArchitectOS never modifies user code directly; it exclusively analyzes, explains, calculates impact, and generates actionable refactoring plans. Code modifications are executed by AI Agents (Claude Code / Cursor / Codex) or human developers.
+> **Strict Product Mandate**: ArchitectOS **never** modifies user code directly; it exclusively analyzes, explains, calculates impact, and generates actionable refactoring plans. Code modifications are executed by AI Agents or human developers.
 
 ---
 
-## 🔄 The ArchitectOS Pipeline
-
-```text
-architectos review               # High-level repository health & top issues
-      ↓
-architectos why <target>         # Root-cause analysis (Why is this coupled?)
-      ↓
-architectos analyze <target>     # Technical metrics & coupling
-      ↓
-architectos impact <target>      # Cross-graph downstream risk (Files/symbols)
-      ↓
-architectos plan <target>        # Structured refactoring plan
-      ↓
-architectos explain <topic>      # Request execution flow visualizer
-      ↓
-AI Agent / Developer executes refactor
-```
-
----
-
-## ⚡ Quickstart & Primary Commands
+## ⚡ Quickstart & 7 Core Commands
 
 ```bash
 # 1. Initialize or refresh repository index
@@ -55,13 +35,13 @@ architectos analyze toolbar.tsx --why
 architectos analyze --ui
 architectos analyze --dead
 
-# 4. Cross-graph downstream change impact
+# 4. Cross-graph downstream change impact & risk rating
 architectos impact auth.ts
 
 # 5. Structured refactoring migration plan
 architectos plan toolbar.tsx
 
-# 6. Symbol resolver & natural language query
+# 6. Symbol resolver & natural language architecture query
 architectos resolve WorkspaceRepository
 architectos resolve "Where is tenant isolation enforced?"
 
@@ -72,155 +52,62 @@ architectos mcp
 
 ---
 
-## 📊 Primary Features
+## 🏛️ The ArchitectOS Pipeline
 
-### 1. `architectos review` (Shareable Health & Problem Breakdown)
 ```text
-📊 ArchitectOS Repository Review
-
-Overall Health: 92/100
- ├── Architecture: 91/100
- ├── Security:     93/100
- └── AI Readiness: 95/100
-
-Top Problems:
-
- 1. WorkspaceService bypasses Application Layer
-    Estimated Fix: 20 min
-    Why it matters: Violates domain boundary constraints
-    Suggested fix: Route requests through ApplicationFacade
-
- 2. Toolbar.tsx is an Oversized / God Component
-    Estimated Fix: 45 min
-    Why it matters: 350+ lines, multi-responsibility coupling
-    Suggested fix: Split into ToolbarUI and ToolbarActions
+architectos review               # High-level repository health & top issues
+      ↓
+architectos analyze <target>     # Component metrics (--why, --ui, --dead)
+      ↓
+architectos impact <target>      # Cross-graph downstream change risk
+      ↓
+architectos plan <target>        # Step-by-step refactoring migration plan
+      ↓
+architectos resolve <symbol>     # Hallucination shield & symbol resolver
+      ↓
+AI Agent / Developer executes refactor
 ```
 
 ---
 
-### 2. `architectos analyze <file>` (Component Deep-Dive)
-```text
-🔍 ArchitectOS Analyze: toolbar.tsx
+## 🎯 Engine Precision & Accuracy Features
 
-Responsibilities:
- - Toolbar rendering
- - Command registration
- - Keyboard shortcuts
-
-Dependencies:
- 22 imports
-
-Problems:
- - God Component
- - Too many responsibilities
-
-Suggestions:
- Split into:
-  - ToolbarUI
-  - ToolbarCommands
-  - ToolbarShortcuts
-
-Estimated effort: 45 min
-```
+- **Framework Entrypoint Whitelist**: Eliminates false positives for Next.js (`GET`, `POST`, `generateMetadata`, `middleware`), Remix, and Vitest test suites.
+- **Type-Only vs Runtime Edge Separation**: Distinguishes compile-time `import type` from heavy runtime JavaScript bundle weight.
+- **Tarjan SCC Cycle Detection**: Mathematically sound circular dependency cycle detection for complex monorepos.
+- **Breaking API AST Diffing**: Detects removed exported functions or modified interface signatures (`BREAKING_API_CHANGE`).
+- **SAST Noise Filter**: Excludes `.env.example`, `fixtures/`, `mocks/`, and test files from production security scoring.
+- **Deterministic AST Synonym Expansion**: Derives natural language search tokens directly from codebase AST identifiers.
 
 ---
 
-### 3. `architectos explain <topic>` (Architecture & Flow Visualizer)
-```text
-🤖 ArchitectOS Explain: authentication
+## 🤖 Native MCP Server Integration
 
-Authentication Flow:
-
- Login Page
-     ↓
- AuthController
-     ↓
- AuthService
-     ↓
- Identity Provider
-     ↓
- JWT
-     ↓
- Middleware
-     ↓
- Protected Routes
-```
-
----
-
-### 4. `architectos status` (5-Second Health Check)
-```text
-📊 ArchitectOS Status
-
-Repository:   ArchitectOS
-Health:       92/100
- ├── Architecture: 91/100
- ├── Security:     93/100
- └── AI Readiness: 90/100
-
-AI Readiness Breakdown:
- ✓ Public APIs discoverable
- ✓ Good symbol coverage
- ✗ Missing ADRs
- ✗ Missing architectural rules
-
-Last indexed: 2m ago
-```
-
----
-
-### 5. `architectos remember "<rule>"` (Persistent AI Memory & Guardrails)
-```text
-🧠 ArchitectOS Repository Memory Engine
-
-✓ Saved persistent architectural rule:
-  "Client UI components cannot import Prisma directly"
-
-Rule active for Cursor, Claude Code, and Codex via MCP.
-```
-
----
-
-## ⚙️ Configuration (`architectos.config.json`)
+Add ArchitectOS to your Claude Code, Cursor, or Codex MCP configuration:
 
 ```json
 {
-  "ignore": [
-    "dist",
-    "node_modules"
-  ],
-  "rules": {
-    "maxFileLines": 500,
-    "allowCycles": false
-  },
-  "plugins": [
-    "next",
-    "react",
-    "prisma"
-  ]
+  "mcpServers": {
+    "architectos": {
+      "command": "npx",
+      "args": ["-y", "architectos", "mcp"]
+    }
+  }
 }
 ```
 
----
-
-## 💻 Essential CLI Commands
-
-```bash
-architectos init               # Fast repository setup and index initialization
-architectos status             # 5-second health score & AI readiness summary
-architectos review             # Signature repository review report with top problems & fix time
-architectos explain <topic>    # Architecture execution flow visualizer
-architectos analyze <file>     # Component responsibility, dependency & problem breakdown
-architectos remember "<rule>"  # Store persistent architectural rule for Cursor/Claude via MCP
-architectos watch              # Sleek sub-150ms live index watcher
-architectos mcp                # Native MCP server gateway for Cursor, Claude Code, and Codex
-```
+### Registered MCP Tools
+- `architectos_review`: Repository health & problem breakdown.
+- `architectos_why`: Root-cause coupling analysis.
+- `architectos_impact`: Polyglot change impact calculator.
+- `architectos_plan`: Step-by-step migration refactoring plan.
+- `architectos_resolve`: Symbol resolver & hallucination shield.
+- `architectos_dead`: Unused exports & zombie code detector.
+- `architectos_ui`: Framework-agnostic UI component composition & boundary audit.
+- `architectos_remember`: Store persistent architectural guardrail rules.
 
 ---
 
-## 🔮 Roadmap
+## 📄 License
 
-- **v1.0**: Focus on 3 core pillars: Repository Review, Architecture Explain, and AI Context.
-- **v1.1**: Polyglot AST Parsers (Python, Go, Rust) & Plugin Loader.
-- **v1.2**: Hybrid BM25 Retrieval & Automated AST Refactoring Engine.
-- **v2.0**: Cloud Dashboard & Team Governance.
+MIT License © 2026 ArchitectOS Authors
