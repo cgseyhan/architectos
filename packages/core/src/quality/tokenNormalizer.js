@@ -13,8 +13,8 @@ function tokenize(code) {
     .replace(/\/\/.*/g, '');
 
   const tokens = [];
-  // Tokenize regex matching keywords, operators, symbols, numbers, and identifiers
-  const tokenRegex = /\b(function|const|let|var|return|if|else|for|while|switch|case|break|continue|try|catch|throw|async|await|class|import|export|from|new|this|of|in)\b|([{}()\[\];,.:?])|([+\-*/%&=<>!|^~]+)|("[^"]*"|'[^']*'|`[^`]*`)|(\b\d+\b)|([A-Za-z_$][A-Za-z0-9_$]*)/g;
+  // Tokenize regex matching keywords (JS/TS + Python), operators, symbols, numbers, and identifiers
+  const tokenRegex = /\b(function|const|let|var|return|if|else|elif|for|while|switch|case|break|continue|try|catch|except|finally|raise|throw|async|await|class|def|import|from|new|this|self|cls|of|in|is|not|and|or|lambda|pass|yield|with|global|nonlocal)\b|([{}()\[\];,.:?])|([+\-*/%&=<>!|^~]+)|("[^"]*"|'[^']*'|`[^`]*`)|(\b\d+\b)|([A-Za-z_$][A-Za-z0-9_$]*)/g;
 
   let match;
   while ((match = tokenRegex.exec(stripped)) !== null) {

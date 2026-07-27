@@ -255,6 +255,63 @@ const SAST_RULES = [
     pattern: /(?:xml2js|fast-xml-parser|DOMParser|parseString|parseXml)\s*[.(][^;]*(?:req\.|body\.|params\.|query\.)/i,
     isLiteralSafe: false,
   },
+
+  // ─── PYTHON SPECIFIC SAST RULES ─────────────────────────────────────────
+
+  {
+    id: 'SAST-PY-PICKLE-001',
+    name: 'Python Unsafe Pickle Deserialization Vulnerability',
+    severity: 'CRITICAL',
+    cwe: 'CWE-502',
+    category: RULE_CATEGORIES.INJECTION,
+    pattern: /pickle\.(?:loads|load)\s*\(/i,
+    isLiteralSafe: false,
+  },
+  {
+    id: 'SAST-PY-SQLI-001',
+    name: 'Python SQL Injection via f-string or % Formatting in DB Cursor',
+    severity: 'CRITICAL',
+    cwe: 'CWE-89',
+    category: RULE_CATEGORIES.INJECTION,
+    pattern: /cursor\.execute\s*\(\s*(?:f["']|["'].*?%s.*?["']\s*%|["'].*?\{\}.*?["']\s*\.format)/i,
+    isLiteralSafe: false,
+  },
+  {
+    id: 'SAST-PY-YAML-001',
+    name: 'Python Unsafe YAML Deserialization (yaml.load without SafeLoader)',
+    severity: 'HIGH',
+    cwe: 'CWE-502',
+    category: RULE_CATEGORIES.INJECTION,
+    pattern: /yaml\.load\s*\([^)]*?(?:Loader\s*=\s*yaml\.(?:Loader|UnsafeLoader|FullLoader)|(?<!Loader\s*=)[^,)]*\))/i,
+    isLiteralSafe: false,
+  },
+  {
+    id: 'SAST-PY-PATH-001',
+    name: 'Python Path Traversal via User Input in open() / os.path.join',
+    severity: 'HIGH',
+    cwe: 'CWE-22',
+    category: RULE_CATEGORIES.INJECTION,
+    pattern: /(?:open|os\.path\.join|os\.listdir)\s*\([^)]*?(?:request\.|args\.|form\.|sys\.argv)/i,
+    isLiteralSafe: false,
+  },
+  {
+    id: 'SAST-PY-SHELL-001',
+    name: 'Python Command Injection via os.system or subprocess(shell=True)',
+    severity: 'CRITICAL',
+    cwe: 'CWE-78',
+    category: RULE_CATEGORIES.INJECTION,
+    pattern: /(?:os\.system\s*\([^)]*?(?:request\.|args\.|form\.|sys\.argv|\+|\$)|subprocess\.(?:Popen|call|run|check_output)\s*\([^)]*?shell\s*=\s*True)/i,
+    isLiteralSafe: false,
+  },
+  {
+    id: 'SAST-PY-DEBUG-001',
+    name: 'Python Flask/Django Production Debug Mode Enabled or Hardcoded SECRET_KEY',
+    severity: 'HIGH',
+    cwe: 'CWE-489',
+    category: RULE_CATEGORIES.INFRA,
+    pattern: /(?:DEBUG\s*=\s*True|SECRET_KEY\s*=\s*['"][a-zA-Z0-9_\-]{6,}['"])/i,
+    isLiteralSafe: false,
+  },
 ];
 
 module.exports = {

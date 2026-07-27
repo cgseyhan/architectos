@@ -189,7 +189,14 @@ class GraphBuilder {
         for (const match of pyClasses) symbols.push({ name: match[1], kind: 'class', exported: true });
 
         const pyFunctions = content.matchAll(/^(?:async\s+)?def\s+([A-Za-z0-9_]+)/gm);
-        for (const match of pyFunctions) symbols.push({ name: match[1], kind: 'function', exported: true });
+        for (const match of pyFunctions) {
+          if (!match[1].startsWith('__')) symbols.push({ name: match[1], kind: 'function', exported: true });
+        }
+
+        const pyRoutes = content.matchAll(/@(?:app|router|api)\.(get|post|put|delete|patch)\s*\(\s*["']([^'"]+)["']/gi);
+        for (const match of pyRoutes) {
+          symbols.push({ name: `${match[1].toUpperCase()} ${match[2]}`, kind: 'endpoint', exported: true });
+        }
       } else {
         const classMatches = content.matchAll(/export\s+(?:default\s+)?class\s+([A-Za-z0-9_]+)/g);
         for (const match of classMatches) symbols.push({ name: match[1], kind: 'class', exported: true });

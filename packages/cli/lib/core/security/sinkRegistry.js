@@ -17,8 +17,11 @@ const TAINT_SINKS = [
   // File System Sinks
   { name: 'fs.readFile', category: 'PATH_TRAVERSAL', pattern: /fs\.(?:readFile|readFileSync|createReadStream)\s*\(/i },
 
-  // Redirect Sinks
-  { name: 'res.redirect', category: 'OPEN_REDIRECT', pattern: /res\.redirect\s*\(/i },
+  // Python Sinks
+  { name: 'pickle.loads', category: 'PYTHON_DESERIALIZATION', pattern: /pickle\.(?:loads|load)\s*\(/i },
+  { name: 'yaml.unsafe_load', category: 'PYTHON_YAML', pattern: /yaml\.(?:unsafe_load|load\([^)]*Loader\s*=\s*yaml\.(?:Loader|UnsafeLoader))/i },
+  { name: 'os.system', category: 'PYTHON_RCE', pattern: /(?:os\.system|os\.popen|subprocess\.(?:Popen|call|run))\s*\(/i },
+  { name: 'cursor.execute', category: 'PYTHON_SQLI', pattern: /cursor\.execute\s*\(\s*(?:f["']|["'].*?%|.*?\+)/i },
 ];
 
 module.exports = { TAINT_SINKS };

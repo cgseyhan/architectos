@@ -96,6 +96,12 @@ securityScore = max(0, min(100, 100 - securityDeductions))
 | SAST-CLICKJACK-001 | Infrastructure | CWE-1021 | LOW |
 | SAST-LDAP-001 | Injection | CWE-90 | HIGH |
 | SAST-XXE-001 | Injection | CWE-611 | HIGH |
+| SAST-PY-PICKLE-001 | Injection (Python) | CWE-502 | CRITICAL |
+| SAST-PY-SQLI-001 | Injection (Python) | CWE-89 | CRITICAL |
+| SAST-PY-YAML-001 | Injection (Python) | CWE-502 | HIGH |
+| SAST-PY-PATH-001 | Injection (Python) | CWE-22 | HIGH |
+| SAST-PY-SHELL-001 | Injection (Python) | CWE-78 | CRITICAL |
+| SAST-PY-DEBUG-001 | Infrastructure (Python) | CWE-489 | HIGH |
 
 **False Positive Reduction (Context-Aware Engine)**
 

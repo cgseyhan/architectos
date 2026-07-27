@@ -41,6 +41,33 @@ class PolyglotResolver {
     return imports;
   }
 
+  static extractPythonSymbols(content) {
+    const symbols = [];
+
+    // Classes: class MyClass(Base):
+    const classRegex = /^\s*class\s+([a-zA-Z0-9_]+)/gm;
+    let match;
+    while ((match = classRegex.exec(content)) !== null) {
+      symbols.push({ name: match[1], kind: 'class' });
+    }
+
+    // Functions/Methods: def my_func(arg):
+    const defRegex = /^\s*(?:async\s+)?def\s+([a-zA-Z0-9_]+)/gm;
+    while ((match = defRegex.exec(content)) !== null) {
+      if (!match[1].startsWith('__')) {
+        symbols.push({ name: match[1], kind: 'function' });
+      }
+    }
+
+    // Decorators / Route handlers: @app.get("/path") or @router.post("/path")
+    const routeRegex = /@(?:app|router|api)\.(get|post|put|delete|patch)\s*\(\s*["']([^'"]+)["']/gi;
+    while ((match = routeRegex.exec(content)) !== null) {
+      symbols.push({ name: `${match[1].toUpperCase()} ${match[2]}`, kind: 'endpoint' });
+    }
+
+    return symbols;
+  }
+
   static extractGoImports(content) {
     const imports = [];
     const goSingleRegex = /^\s*import\s+"([^"]+)"/gm;

@@ -14,10 +14,11 @@ const TAINT_SOURCES = [
   { name: 'searchParams', category: 'NEXT_QUERY', pattern: /searchParams(?:\.[A-Za-z0-9_$]+|\.get\([^)]+\))?/i },
   { name: 'params', category: 'NEXT_PARAMS', pattern: /params\.[A-Za-z0-9_$]+/i },
 
-  // Client-side DOM inputs
-  { name: 'location.search', category: 'DOM_QUERY', pattern: /window\.location\.search|location\.search/i },
-  { name: 'location.hash', category: 'DOM_HASH', pattern: /window\.location\.hash|location\.hash/i },
-  { name: 'URLSearchParams', category: 'URL_PARAMS', pattern: /new\s+URLSearchParams/i },
+  // Python Flask / FastAPI / Django / CLI inputs
+  { name: 'request.args', category: 'PYTHON_FLASK_QUERY', pattern: /request\.(?:args|form|values|json|files)(?:\[|\.get)/i },
+  { name: 'request.GET', category: 'PYTHON_DJANGO_QUERY', pattern: /request\.(?:GET|POST|COOKIES|FILES)(?:\[|\.get)/i },
+  { name: 'sys.argv', category: 'PYTHON_CLI', pattern: /sys\.argv(?:\[|\b)/i },
+  { name: 'os.environ', category: 'PYTHON_ENV', pattern: /os\.environ(?:\.get|\[)/i },
 ];
 
 module.exports = { TAINT_SOURCES };
