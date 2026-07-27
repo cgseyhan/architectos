@@ -270,10 +270,17 @@ Top Problems:
       const { analyzeUiArchitecture } = require('../lib/core/ui/uiAnalyzer');
       const res = analyzeUiArchitecture(targetFile, graphData);
       console.log(`\nUI Architecture Review\n`);
+      if (res.hasNoUi) {
+        console.log(`Status: ${res.statusText}`);
+        console.log(`Reason: ${res.reason}\n`);
+        break;
+      }
       console.log(`Health: ${res.healthScore}/100\n`);
-      res.issues.forEach(iss => {
-        console.log(`────────────────────────────\n${iss.title}\n${iss.recommendation}\n`);
-      });
+      if (res.issues && Array.isArray(res.issues)) {
+        res.issues.forEach(iss => {
+          console.log(`────────────────────────────\n${iss.title}\n${iss.recommendation}\n`);
+        });
+      }
       console.log(`────────────────────────────\nRun: architectos plan ${res.target}\n`);
       break;
     }
@@ -513,6 +520,13 @@ Estimated effort: 45 min
 
     if (jsonFlag) {
       console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    if (res.hasNoUi) {
+      console.log(`\nUI Architecture Review\n`);
+      console.log(`Status: ${res.statusText}`);
+      console.log(`Reason: ${res.reason}\n`);
       break;
     }
 

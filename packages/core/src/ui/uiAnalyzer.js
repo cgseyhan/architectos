@@ -18,21 +18,30 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
     };
   }
 
-  const issues = [];
-  const useClientLeaks = [];
-  const propDrillingList = [];
-  const fatContexts = [];
-
   // Helper: Filter strict UI component files (.tsx, .jsx, .vue, .svelte)
   const isUiFile = (nodePath) => {
     const p = nodePath.toLowerCase();
-    // Exclude non-UI extensions, tests, generated files, and data files
     if (/(json|py|go|rs|md|\.gen\.ts|\.d\.ts|package-lock|test|spec|conftest|fixture)/i.test(p)) return false;
     return /\.(tsx|jsx|vue|svelte)$/i.test(p);
   };
 
   // Filter UI nodes only
   const uiNodes = nodes.filter(n => isUiFile(n.path));
+
+  // If 0 UI components are detected, return N/A status with explanation
+  if (uiNodes.length === 0) {
+    return {
+      hasNoUi: true,
+      target,
+      statusText: "N/A (No UI Components Detected)",
+      reason: "This repository is a pure CLI / Backend / Library project containing 0 UI component files (.tsx, .jsx, .vue, .svelte)."
+    };
+  }
+
+  const issues = [];
+  const useClientLeaks = [];
+  const propDrillingList = [];
+  const fatContexts = [];
 
   // 1. Dynamic 'use client' Leak Detection in App Router Routes
   const pageNodes = uiNodes.filter(n => /(page|layout)\.(tsx|jsx)$/i.test(n.name));
@@ -56,7 +65,7 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
   const oversizedUiNodes = uiNodes
     .filter(n => n.lines > 400)
     .sort((a, b) => b.lines - a.lines)
-    .slice(0, 5); // Limit to top 5 critical components
+    .slice(0, 5);
 
   for (const cNode of oversizedUiNodes) {
     fatContexts.push({
@@ -84,6 +93,7 @@ function analyzeUiArchitecture(targetPath, graphData, options = {}) {
   const healthScore = Math.max(60, 100 - issues.length * 5);
 
   return {
+    hasNoUi: false,
     target,
     healthScore,
     issuesCount: issues.length,
