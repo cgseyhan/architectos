@@ -1,6 +1,6 @@
 {
   "name": "architectos",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "mcpName": "io.github.cgseyhan/architectos",
   "description": "ArchitectOS - AI-Native Repository Intelligence Operating System",
   "bin": {

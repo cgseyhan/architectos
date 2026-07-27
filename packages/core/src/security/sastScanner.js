@@ -21,7 +21,14 @@ function scanCodeForVulnerabilities(content, filePath) {
   const vulnerabilities = [];
 
   // Skip non-production files and the scanner's own rule files
-  if (/(test|spec|mock|example|\.md|\.d\.ts|openapi\.json|\.json$|ruleRegistry\.js|sastScanner\.js)/i.test(filePath)) {
+  const normPath = filePath ? String(filePath).replace(/\\/g, '/').toLowerCase() : '';
+  if (
+    normPath.includes('sinkregistry') ||
+    normPath.includes('sourceregistry') ||
+    normPath.includes('ruleregistry') ||
+    normPath.includes('sastscanner') ||
+    /(test|spec|mock|example|\.md|\.d\.ts|openapi\.json|\.json$)/.test(normPath)
+  ) {
     return vulnerabilities;
   }
 

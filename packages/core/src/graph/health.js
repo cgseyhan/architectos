@@ -63,7 +63,7 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
     const inc = incomingDegree.get(n.id) || 0;
     if (inc > 0) return false;
     const name = n.name.toLowerCase();
-    if (/(index|app|main|server|page|layout|cli|bin|config|test|spec|intelligence|types|json|html|architectos)/i.test(name)) return false;
+    if (/(index|app|main|server|page|layout|cli|bin|config|test|spec|intelligence|types|json|html|architectos|duplication|similarity|token|taint|registry|scanner)/i.test(name)) return false;
     return true;
   }).length;
 

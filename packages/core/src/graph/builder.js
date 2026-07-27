@@ -150,7 +150,8 @@ class GraphBuilder {
           lowerName === 'venv' ||
           lowerName === '.venv' ||
           lowerName === 'env' ||
-          lowerName === 'architectos-out' ||
+          relPath.includes('packages/cli/lib') ||
+          relPath.includes('packages\\cli\\lib') ||
           isExcluded
         ) {
           continue;

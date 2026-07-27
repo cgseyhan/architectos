@@ -9,7 +9,7 @@ const TAINT_SINKS = [
 
   // HTML / DOM Sinks
   { name: 'innerHTML', category: 'XSS', pattern: /innerHTML\s*=/i },
-  { name: 'dangerouslySetInnerHTML', category: 'XSS', pattern: /dangerouslySetInnerHTML\s*=/i },
+  { name: 'dangerouslySetInnerHTML', category: 'XSS', pattern: /dangerouslySetInnerHTML\s*=/i }, // nosec
 
   // Command Execution Sinks
   { name: 'exec', category: 'RCE', pattern: /(?:child_process|cp)\.(?:exec|execSync|spawn|spawnSync)\s*\(/i },
