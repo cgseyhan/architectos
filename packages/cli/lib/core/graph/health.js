@@ -203,29 +203,48 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
     });
   }
 
+  // --- DYNAMIC UI ARCHITECTURE DETECTION ---
+  const uiFiles = nodes.filter(n => /\.(tsx|jsx|vue|svelte)$/i.test(n.path));
+  const isUiProject = uiFiles.length > 0;
+  let uiArchitectureScore = null;
+
+  if (isUiProject) {
+    try {
+      const { analyzeUiArchitecture } = require('../ui/uiAnalyzer');
+      uiArchitectureScore = analyzeUiArchitecture(null, graphData).healthScore;
+    } catch (e) {
+      uiArchitectureScore = 90;
+    }
+  }
+
   // --- OVERALL AGGREGATE HEALTH SCORE ---
   const overallScore = Math.round(
     architectureScore * 0.25 +
     securityScore * 0.20 +
     codeQualityScore * 0.20 +
     aiReadinessScore * 0.15 +
-    testabilityScore * 0.10 +
-    maintainabilityScore * 0.10
+    (isUiProject ? (uiArchitectureScore || 85) * 0.10 : 0) +
+    testabilityScore * 0.05 +
+    maintainabilityScore * 0.05
   );
 
-  const uiArchitectureScore = 84;
+  const qualityModel = {
+    architecture: { score: architectureScore, weight: '25%' },
+    security: { score: securityScore, weight: '20%' },
+    codeQuality: { score: codeQualityScore, weight: '20%' },
+    aiReadiness: { score: aiReadinessScore, weight: '15%' },
+    testability: { score: testabilityScore, weight: '10%' },
+    maintainability: { score: maintainabilityScore, weight: '10%' }
+  };
+
+  if (isUiProject) {
+    qualityModel.uiArchitecture = { score: uiArchitectureScore, weight: '10%' };
+  }
 
   const result = {
     overallScore,
-    qualityModel: {
-      architecture: { score: architectureScore, weight: '25%' },
-      security: { score: securityScore, weight: '20%' },
-      codeQuality: { score: codeQualityScore, weight: '20%' },
-      aiReadiness: { score: aiReadinessScore, weight: '15%' },
-      uiArchitecture: { score: uiArchitectureScore, weight: '10%' },
-      testability: { score: testabilityScore, weight: '5%' },
-      maintainability: { score: maintainabilityScore, weight: '5%' }
-    },
+    isUiProject,
+    qualityModel,
     metrics: {
       architecture: architectureScore,
       security: securityScore,
@@ -233,7 +252,7 @@ function calculateHealth(graphData, targetDir = process.cwd()) {
       maintainability: maintainabilityScore,
       testability: testabilityScore,
       aiReadiness: aiReadinessScore,
-      uiArchitecture: uiArchitectureScore,
+      uiArchitecture: isUiProject ? uiArchitectureScore : null,
       technicalDebtHours
     },
     debtBreakdown,

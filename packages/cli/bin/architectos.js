@@ -195,8 +195,7 @@ Health:       ${health.overallScore}/100
  ├── Architecture:    ${health.metrics.architecture}/100
  ├── Security:        ${health.metrics.security}/100
  ├── Code Quality:    ${health.metrics.codeQuality}/100
- ├── AI Readiness:    ${health.metrics.aiReadiness}/100
- └── UI Architecture: ${health.metrics.uiArchitecture}/100
+ ├── AI Readiness:    ${health.metrics.aiReadiness}/100${health.metrics.uiArchitecture !== null ? `\n └── UI Architecture: ${health.metrics.uiArchitecture}/100` : ''}
 
 AI Readiness Breakdown:
  ✓ Public APIs discoverable
@@ -226,8 +225,7 @@ Overall Health: ${health.overallScore}/100
  ├── Architecture:    ${health.metrics.architecture}/100
  ├── Security:        ${health.metrics.security}/100
  ├── Code Quality:    ${health.metrics.codeQuality}/100
- ├── AI Readiness:    ${health.metrics.aiReadiness}/100
- └── UI Architecture: ${health.metrics.uiArchitecture}/100
+ ├── AI Readiness:    ${health.metrics.aiReadiness}/100${health.metrics.uiArchitecture !== null ? `\n └── UI Architecture: ${health.metrics.uiArchitecture}/100` : ''}
 
 Top Problems:
 
