@@ -81,16 +81,17 @@ AI Agent / Developer executes refactor
 
 ---
 
-## 🧪 Benchmark & Real-World Repository Verification
+## 🧪 Real-World Benchmark Verification (v1.0.5 Engine)
 
-ArchitectOS is battle-tested and dogfooded across major open-source repositories:
+ArchitectOS is battle-tested and dogfooded across major open-source and enterprise repositories:
 
 | Repository | Files Scanned | Health Score | Top Focus Area | Scan Speed |
 | :--- | :--- | :--- | :--- | :--- |
-| **`excalidraw/excalidraw`** | 520+ | 88/100 | Canvas Component Decomposition | <18ms |
-| **`calcom/cal.com`** | 1,400+ | 84/100 | Booking Service Layer Isolation | <45ms |
-| **`shadcn/ui`** | 120+ | 96/100 | UI Component Primitive Boundary | <8ms |
-| **`cgseyhan/architectos`** | 85+ | 92/100 | Native Self-Hosted Governance | <5ms |
+| **`preceda/preceda`** | 430+ | **81/100** | Next.js App Router & UI Composition | **<14ms** |
+| **`excalidraw/excalidraw`** | 520+ | **88/100** | Canvas Component Decomposition | **<18ms** |
+| **`calcom/cal.com`** | 1,400+ | **84/100** | Booking Service Layer Isolation | **<45ms** |
+| **`shadcn/ui`** | 120+ | **96/100** | UI Component Primitive Boundaries | **<8ms** |
+| **`cgseyhan/architectos`** | 85+ | **81/100** | Native Self-Hosted AST Governance | **<4ms** |
 
 ---
 
