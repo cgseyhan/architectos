@@ -2,9 +2,29 @@
  * ArchitectOS Layer 6: Deterministic Context Engine & AI Token Budgeting
  */
 
+const DOMAIN_SYNONYMS = {
+  auth: ['jwt', 'session', 'login', 'token', 'middleware', 'passport', 'auth'],
+  database: ['repository', 'prisma', 'drizzle', 'orm', 'model', 'db', 'store'],
+  billing: ['stripe', 'invoice', 'payment', 'subscription', 'charge'],
+  ui: ['component', 'layout', 'dialog', 'modal', 'toaster', 'button', 'view']
+};
+
+function expandSynonyms(tokens) {
+  const expanded = new Set(tokens);
+  for (const tok of tokens) {
+    for (const [key, synonyms] of Object.entries(DOMAIN_SYNONYMS)) {
+      if (tok.includes(key) || synonyms.includes(tok)) {
+        synonyms.forEach(s => expanded.add(s));
+      }
+    }
+  }
+  return Array.from(expanded);
+}
+
 function getContextBundle(query, graphData, tokenBudget = 4096) {
   const { nodes, edges } = graphData;
-  const qTokens = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+  const rawTokens = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+  const qTokens = expandSynonyms(rawTokens);
   const totalDocs = Math.max(nodes.length, 1);
 
   // Compute node degree map for graph proximity score

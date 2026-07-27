@@ -15,7 +15,18 @@ class MemoryEngine {
     if (!fs.existsSync(this.memoryFile)) return [];
     try {
       const raw = fs.readFileSync(this.memoryFile, 'utf-8');
-      return JSON.parse(raw);
+      const list = JSON.parse(raw);
+      // Validate rule staleness against target filesystem
+      return list.map(item => {
+        const fileMatch = item.note.match(/([a-zA-Z0-9_\-\/]+\.[a-z]+)/);
+        if (fileMatch) {
+          const referencedPath = path.join(this.targetDir, fileMatch[1]);
+          if (!fs.existsSync(referencedPath)) {
+            return { ...item, isStale: true };
+          }
+        }
+        return { ...item, isStale: false };
+      });
     } catch (e) {
       return [];
     }
